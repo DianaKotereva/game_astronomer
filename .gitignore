@@ -1,0 +1,6 @@
+node_modules/
+dist/
+shots/*.png
+!shots/milestone_*.png
+.vite/
+*.log

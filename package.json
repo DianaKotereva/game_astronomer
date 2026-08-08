@@ -1,0 +1,26 @@
+{
+  "name": "game_astronomer",
+  "version": "0.1.0",
+  "description": "The Book of Stars — an astronomer and star mage explores an abandoned astronomical temple. Babylon.js / WebGPU vertical slice.",
+  "type": "module",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "shot": "node tools/capture.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DianaKotereva/game_astronomer.git"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@babylonjs/core": "^9.20.0",
+    "@babylonjs/materials": "^9.20.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1",
+    "vite": "^8.2.1"
+  }
+}

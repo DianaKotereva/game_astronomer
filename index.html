@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>The Book of Stars</title>
+    <style>
+      :root {
+        --ink: #cbc3b2;
+        --ink-dim: #6d6659;
+        --gold: #b9944f;
+        --pale: #dfd8c8;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0; padding: 0; width: 100%; height: 100%;
+        background: #05060a; color: var(--ink);
+        font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+        overflow: hidden; cursor: default;
+        -webkit-font-smoothing: antialiased;
+      }
+      #view {
+        position: fixed; inset: 0; width: 100%; height: 100%;
+        display: block; outline: none; touch-action: none;
+        background: #05060a;
+      }
+
+      /* ---------------- loading screen ---------------- */
+      #boot {
+        position: fixed; inset: 0; z-index: 40;
+        background:
+          radial-gradient(120% 90% at 50% 46%, #0b0e17 0%, #06070d 45%, #030409 100%);
+        display: grid; place-items: center;
+        transition: opacity 1400ms cubic-bezier(.4,0,.2,1);
+      }
+      #boot.gone { opacity: 0; pointer-events: none; }
+      #boot .plate { position: relative; width: min(78vmin, 720px); aspect-ratio: 1; display: grid; place-items: center; }
+      #boot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+      .ring { fill: none; stroke: var(--ink-dim); vector-effect: non-scaling-stroke; }
+      .r-a { animation: spin 210s linear infinite; transform-origin: 50% 50%; }
+      .r-b { animation: spin 130s linear infinite reverse; transform-origin: 50% 50%; }
+      .r-c { animation: spin 320s linear infinite; transform-origin: 50% 50%; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .r-a,.r-b,.r-c { animation: none; } }
+
+      #boot .title {
+        position: relative; text-align: center; z-index: 2;
+        text-transform: uppercase;
+      }
+      #boot .title h1 {
+        margin: 0; font-size: clamp(19px, 2.35vmin, 30px); font-weight: 400;
+        letter-spacing: 0.72em; text-indent: 0.72em; color: var(--pale);
+        text-shadow: 0 0 26px rgba(180,200,255,.16);
+      }
+      #boot .title .sub {
+        margin-top: 1.7em; font-size: clamp(9px, 1.06vmin, 12px);
+        letter-spacing: 0.46em; text-indent: 0.46em; color: var(--ink-dim);
+      }
+      #boot .bar {
+        position: absolute; left: 50%; bottom: 8.5vmin; transform: translateX(-50%);
+        width: min(46vmin, 380px); height: 1px; background: rgba(160,150,130,.14);
+      }
+      #boot .bar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, transparent, var(--gold), transparent); transition: width 420ms ease; }
+      #boot .phase {
+        position: absolute; left: 50%; bottom: 6.1vmin; transform: translateX(-50%);
+        font-size: 10px; letter-spacing: .34em; text-transform: uppercase; color: #4e4a41;
+        white-space: nowrap;
+      }
+      #boot .stars { position: absolute; inset: 0; z-index: 0; }
+      #boot .stars i {
+        position: absolute; width: 1px; height: 1px; background: #cfd8ee; border-radius: 50%;
+        animation: tw 6s ease-in-out infinite;
+      }
+      @keyframes tw { 0%,100% { opacity: .18 } 50% { opacity: .62 } }
+
+      /* ---------------- compatibility screen ---------------- */
+      #nogpu {
+        position: fixed; inset: 0; z-index: 60; display: none;
+        place-items: center; background: #04050a; text-align: center; padding: 6vmin;
+      }
+      #nogpu.on { display: grid; }
+      #nogpu .in { max-width: 60ch; }
+      #nogpu h2 {
+        font-weight: 400; font-size: clamp(15px, 1.9vmin, 22px); letter-spacing: .42em;
+        text-transform: uppercase; color: var(--pale); margin: 0 0 2.4em;
+      }
+      #nogpu p { font-size: 15px; line-height: 2; color: #7a7365; margin: 0 0 1.4em; letter-spacing: .02em; }
+      #nogpu .hint { color: #4d4841; font-size: 13px; letter-spacing: .06em; }
+    </style>
+  </head>
+  <body>
+    <canvas id="view" tabindex="0"></canvas>
+
+    <div id="boot">
+      <div class="stars" id="bootstars"></div>
+      <div class="plate">
+        <svg viewBox="0 0 400 400" aria-hidden="true">
+          <g class="r-c" opacity=".5">
+            <circle class="ring" cx="200" cy="200" r="190" stroke-width=".6" />
+            <circle class="ring" cx="200" cy="200" r="182" stroke-width=".35" stroke-dasharray="1 7" />
+          </g>
+          <g class="r-a" opacity=".72">
+            <circle class="ring" cx="200" cy="200" r="150" stroke-width=".7" />
+            <circle class="ring" cx="200" cy="200" r="150" stroke-width="2.4" stroke-dasharray="0.9 14.8" opacity=".55" />
+            <path class="ring" d="M50 200 A150 150 0 0 1 350 200" stroke-width=".5" opacity=".5" />
+          </g>
+          <g class="r-b" opacity=".6">
+            <ellipse class="ring" cx="200" cy="200" rx="118" ry="43" stroke-width=".65" />
+            <ellipse class="ring" cx="200" cy="200" rx="43" ry="118" stroke-width=".4" opacity=".7" />
+          </g>
+          <g opacity=".42">
+            <circle class="ring" cx="200" cy="200" r="86" stroke-width=".45" />
+            <line class="ring" x1="200" y1="96" x2="200" y2="304" stroke-width=".35" stroke-dasharray="3 5" />
+            <line class="ring" x1="96" y1="200" x2="304" y2="200" stroke-width=".35" stroke-dasharray="3 5" />
+          </g>
+        </svg>
+        <div class="title">
+          <h1>The Book of Stars</h1>
+          <div class="sub">Temple of the Meridian</div>
+        </div>
+      </div>
+      <div class="bar"><i id="bootbar"></i></div>
+      <div class="phase" id="bootphase">preparing the instruments</div>
+    </div>
+
+    <div id="nogpu">
+      <div class="in">
+        <h2>WebGPU Required</h2>
+        <p>This observatory is rendered with WebGPU. Your browser did not provide a WebGPU device, so the temple cannot be opened.</p>
+        <p class="hint">Chrome or Edge 113+ on a desktop GPU. If you are already using one, check that hardware acceleration is enabled.</p>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+    <script>
+      // Tiny star dust behind the loading plate — drawn before any module loads.
+      (function () {
+        const host = document.getElementById("bootstars");
+        if (!host) return;
+        let html = "";
+        for (let i = 0; i < 90; i++) {
+          const x = Math.random() * 100, y = Math.random() * 100;
+          const s = Math.random() < 0.12 ? 2 : 1;
+          const o = 0.1 + Math.random() * 0.5, d = (Math.random() * 6).toFixed(2);
+          html += `<i style="left:${x.toFixed(2)}%;top:${y.toFixed(2)}%;width:${s}px;height:${s}px;opacity:${o.toFixed(2)};animation-delay:-${d}s"></i>`;
+        }
+        host.innerHTML = html;
+      })();
+    </script>
+  </body>
+</html>
