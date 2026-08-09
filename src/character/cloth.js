@@ -110,12 +110,16 @@ export class ClothPanel {
         idxArr.push(a, d, b, b, d, e);
       }
     }
+    // UVs in metres of cloth, so the weave keeps its real scale however large
+    // the panel is. Mapping the panel to a fraction of one UV tile stretched a
+    // handful of weave cells across the whole coat and read as painted stripes.
     const uvs = new Float32Array(C * R * 2);
+    const uvPerMetre = 5.5;
     for (let r = 0; r < R; r++) {
       for (let c = 0; c < C; c++) {
         const i = r * C + c;
-        uvs[i * 2] = (c / C) * (this.width * 1.2);
-        uvs[i * 2 + 1] = (r / (R - 1)) * this.length;
+        uvs[i * 2] = (c / C) * this.width * Math.PI * uvPerMetre;
+        uvs[i * 2 + 1] = (r / (R - 1)) * this.length * uvPerMetre;
       }
     }
     const mesh = new Mesh(name, scene);
