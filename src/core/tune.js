@@ -14,19 +14,19 @@ export const tune = {
   // --- sky ---------------------------------------------------------------
   moonAzimuth: 118,        // degrees, clockwise from north
   moonAltitude: 27,        // degrees above horizon
-  moonIntensity: 1.35,
+  moonIntensity: 2.60,
   moonPhase: 0.78,         // 0 new .. 1 full
   moonAngularSize: 0.62,   // degrees
-  skyIntensity: 0.5,
+  skyIntensity: 1.05,
   skyHorizonLift: 0.5,
-  starIntensity: 1.0,
+  starIntensity: 1.25,
   starSizeScale: 1.0,
   milkyWayIntensity: 0.75,
   extinctionStrength: 1.0,
-  airglow: 0.35,
+  airglow: 0.6,
 
   // --- exposure / grade --------------------------------------------------
-  exposure: 1.0,
+  exposure: 1.55,
   contrast: 1.06,
   saturation: 0.94,
   coolShadowTint: 0.5,
@@ -44,8 +44,8 @@ export const tune = {
   dustDensity: 1.0,
 
   // --- lights ------------------------------------------------------------
-  lanternIntensity: 1.0,
-  lanternRange: 13.5,
+  lanternIntensity: 0.85,
+  lanternRange: 15.5,
   lanternWarmth: 1.0,
   shadowDarkness: 0.12,
   contactShadow: 0.7,
@@ -143,6 +143,7 @@ export const toggles = {
   character: true,
   wireframe: false,
   freezeTime: false,
+  moonManual: false,
 };
 
 /** @type {Array<{key:string,label:string}>} */
@@ -161,6 +162,8 @@ export const TOGGLE_DEFS = [
   { key: "taa", label: "taa" },
   { key: "character", label: "character" },
   { key: "wireframe", label: "wireframe" },
+  { key: "moonManual", label: "manual moon" },
+  { key: "freezeTime", label: "freeze time" },
 ];
 
 const listeners = [];

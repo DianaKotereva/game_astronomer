@@ -46,10 +46,13 @@ const OUTDIR = arg("out", "shots");
 
 let server = null;
 let url = arg("url", "");
+// A leftover dev server from an interrupted run must never wedge a capture, so
+// each run takes its own port.
+const PORT = parseInt(arg("port", String(5200 + Math.floor(Math.random() * 300))), 10);
 
 async function startServer() {
   if (url) return;
-  server = spawn("npx", ["vite", "--port", "5173", "--host", "127.0.0.1", "--strictPort"], {
+  server = spawn("npx", ["vite", "--port", String(PORT), "--host", "127.0.0.1", "--strictPort"], {
     cwd: process.cwd(), stdio: ["ignore", "pipe", "pipe"],
   });
   await new Promise((resolve, reject) => {
@@ -60,7 +63,7 @@ async function startServer() {
     });
     server.stderr.on("data", (d) => process.stderr.write("[vite] " + d.toString()));
   });
-  url = "http://127.0.0.1:5173/";
+  url = `http://127.0.0.1:${PORT}/`;
 }
 
 async function run() {
@@ -109,12 +112,19 @@ async function run() {
   const shots = [];
   for (let i = 0; i < SHOTS; i++) {
     const file = path.join(OUTDIR, SHOTS > 1 ? `${name}_${i}.png` : `${name}.png`);
+    // Halt the render loop first. On the software rasteriser a single frame can
+    // take seconds, and the compositor cannot deliver a screenshot while the GPU
+    // is saturated — stopping the loop makes the capture immediate.
+    await page.evaluate(() => { if (window.__rt) window.__rt.stop(); }).catch(() => {});
     // Pull the virtual swapchain into the visible canvas (see tools/gpuShim.js).
     const grab = await page.evaluate(() => (window.__grab ? window.__grab() : "no-shim")).catch((e) => "grab-fail: " + e.message);
     if (typeof grab === "string") problems.push("GRAB: " + grab);
-    await page.screenshot({ path: file });
+    await page.screenshot({ path: file, timeout: 120000, animations: "disabled" });
     shots.push(file);
-    if (i < SHOTS - 1) await page.waitForTimeout(GAP);
+    if (i < SHOTS - 1) {
+      await page.evaluate(() => { if (window.__rt) window.__rt.start(); }).catch(() => {});
+      await page.waitForTimeout(GAP);
+    }
   }
 
   const stats = await page.evaluate(() => {
