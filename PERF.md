@@ -28,6 +28,15 @@ frame-time graph — it plots the 11.1 ms and 16.6 ms budget lines directly, and
 reports 1% lows separately from the average, because average FPS alone is not a
 sufficient measure (§85).
 
+## A note on the screenshots
+
+Milestone captures in `shots/` are 1280 × 720, not the 2560 × 1440 the brief
+asks for. That is a limitation of this container, not a choice: on SwiftShader a
+720p frame of this scene takes roughly twenty minutes to boot and render through
+the capture harness, and 1440p — four times the pixels — exceeded every timeout
+tried, twice. The renderer targets 1440p and the game runs at whatever the canvas
+is set to; only the *captures* are constrained.
+
 ## Scene cost, measured
 
 Captured from `window.__status` and the scene instrumentation at 1280 × 720,

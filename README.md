@@ -84,8 +84,23 @@ measurement caveats, and the full design of every puzzle.
 
 ## Status
 
-The Hall of Meridian is complete and playable end to end: observation, the drum
-of hours, the meridian circle, Celestial Resonance, and the temple's answer. The
-sky, the character, the Book, Observation Mode, the magic framework and all five
-spells are implemented. The remaining chambers are designed in `PUZZLES.md` and
-are the next build phase.
+**Built and running.** Two chambers stand: the Hall of Meridian, complete end to
+end (the shaft of moonlight, the floor scale, the drum of hours, the meridian
+circle, Celestial Resonance, and the temple's answer opening the way north), and
+the Chamber of Wandering Stars with its five-ring orrery. The celestial model,
+the sky, the protagonist, the Book of Stars, Observation Mode, the shared magic
+framework and all five spells plus Zenith are implemented, as are the mechanism
+physics, dust, procedural audio, save and the pipeline warm-up.
+
+**Designed, not yet built:** the Court of Reflections, the Archive of the Sky and
+the Final Observatory. Their full designs — evidence, deduction, manipulation,
+verification, failure feedback and brute-force protection — are written up in
+`PUZZLES.md`, and the fragments, figures and spells they hand out already exist
+in the Book's knowledge graph, which is validated as reachable end to end.
+
+**Verified numerically** (`tools/rigcheck.mjs`, and the audits in this session):
+the moon's meridian crossing lands where the hall's scale says it should, the
+altitude read-back round-trips exactly, every constellation figure resolves to a
+real catalogued star, all five spells are reachable through Book fragments, and
+precession puts Thuban 0.09° from the pole 4 800 years ago — which is what the
+whole revelation rests on.
