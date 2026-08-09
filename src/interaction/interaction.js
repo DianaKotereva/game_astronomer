@@ -191,14 +191,17 @@ export class Interaction {
         tx /= l; ty /= l;
         const drag = inp.mouseDX * tx + inp.mouseDY * ty;
         const gain = (item.gain || 1) * 0.9;
-        axis.push(drag * gain);
+        // The mouse delta for this frame is an *impulse*, not a torque held for
+        // a frame: dividing by dt makes a given hand movement produce the same
+        // push whatever the frame rate, which is what makes heavy bronze feel
+        // like it is being shoved rather than nudged.
+        axis.push((drag * gain) / Math.max(dt, 1 / 240));
       }
     }
 
     this.player.controller.reachRight(this.gripPoint);
     this.hud.setPrompt("Release", item.dragVerb || "Turn", item.sub || "");
     this.cam.inspectPoint.copyFrom(this.gripPoint);
-    void dt;
   }
 
   _project(world, out) {

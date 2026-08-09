@@ -196,7 +196,7 @@ export function limestone(scene, size = 512, seed = 11, opts = {}) {
   const name = "limestone_" + seed + "_" + warm.toFixed(2) + "_" + wear.toFixed(2);
   return bakeMaterial(scene, {
     name, size,
-    normalStrength: 5.2, aoRadius: 6, aoStrength: 2.6,
+    normalStrength: 3.6, aoRadius: 6, aoStrength: 2.2,
     shade(u, v, c) {
       const x = u * 6, y = v * 6;
 
@@ -209,20 +209,26 @@ export function limestone(scene, size = 512, seed = 11, opts = {}) {
       const tooling = smoothstepf(0.02, 0.42, chisel);
 
       // cracks — cell borders, thin and sharp
+      // Cracks are an event, not a texture: only a minority of blocks carry one,
+      // so the wall reads as dressed ashlar rather than as crazed rubble.
       const crackRaw = cellEdge(x * 1.6, y * 1.6, 10, seed + 5, 0.95);
-      const crack = 1 - smoothstepf(0.0, 0.055, crackRaw);
+      const crackWhere = smoothstepf(0.42, 0.62, fbm2(x * 0.55, y * 0.55, 4, 3, seed + 205));
+      const crack = (1 - smoothstepf(0.0, 0.030, crackRaw)) * crackWhere;
 
-      // micro — pores and grain
+      // micro — pores and grain. Sparse and shallow: at reading distance the
+      // surface should be close-grained limestone, and a dense pore field makes
+      // it read as concrete instead.
       const pores = worley2(x * 26, y * 26, 156, seed + 9, 1).f1;
-      const poreMask = 1 - smoothstepf(0.08, 0.42, pores);
+      const poreMask = (1 - smoothstepf(0.03, 0.20, pores))
+        * smoothstepf(0.45, 0.72, fbm2(x * 3.1, y * 3.1, 19, 3, seed + 311));
       const grain = fbm2(x * 34, y * 34, 204, 3, seed + 3);
 
       let h = 0.5
         + (macro - 0.5) * 0.55
         + (erosion - 0.5) * 0.22 * wear
         + (tooling - 0.5) * 0.055
-        - crack * 0.30 * wear
-        - poreMask * 0.075
+        - crack * 0.22 * wear
+        - poreMask * 0.045
         + (grain - 0.5) * 0.035;
 
       // mineral staining runs downward with gravity
@@ -244,12 +250,12 @@ export function limestone(scene, size = 512, seed = 11, opts = {}) {
       r = mix(r, 0.74, bloom * 0.32); g = mix(g, 0.73, bloom * 0.32); b = mix(b, 0.70, bloom * 0.30);
 
       // cracks and pores go dark
-      const dark = clamp01f(crack * 0.85 + poreMask * 0.5);
-      r *= 1 - dark * 0.55; g *= 1 - dark * 0.56; b *= 1 - dark * 0.55;
+      const dark = clamp01f(crack * 0.8 + poreMask * 0.38);
+      r *= 1 - dark * 0.42; g *= 1 - dark * 0.43; b *= 1 - dark * 0.42;
 
       c.h = h;
       c.r = r; c.g = g; c.b = b;
-      c.rough = clamp01f(0.62 + (1 - tooling) * 0.14 + stain * 0.12 + poreMask * 0.16 - bloom * 0.06);
+      c.rough = clamp01f(0.60 + (1 - tooling) * 0.12 + stain * 0.10 + poreMask * 0.10 - bloom * 0.06);
       c.metal = 0;
     },
   });

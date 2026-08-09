@@ -96,7 +96,7 @@ export async function warmUp(ctx, report) {
 
   // --- shadow maps for both lights, with everything present --------------
   await report("warming the shadows", 2);
-  await frames(3);
+  await frames(2);
 
   // Restore.
   cam.yaw = savedYaw; cam.pitch = savedPitch;
@@ -105,6 +105,6 @@ export async function warmUp(ctx, report) {
   magic.clearLinks();
 
   // A last pass with everything back to its resting state.
-  await frames(2);
+  await frames(1);
   void engine;
 }

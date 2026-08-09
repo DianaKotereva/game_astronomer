@@ -95,7 +95,7 @@ async function main() {
   const player = new Player(scene, temple.mats, cam, input, lighting);
   rt.add(player);
   ctx.player = player;
-  player.teleport(0, 0.05, -13.2, 0);
+  player.teleport(1.6, 0.05, -10.4, 0.06);
 
   await bootStep("hanging the shadows", 3);
   lighting.initShadows(temple.shadowCasters, QUALITY.shadow, QUALITY.cascades, QUALITY.lanternShadow);
@@ -193,8 +193,19 @@ async function main() {
 
   /* --- warm every pipeline before the doors open ------------------------- */
   await bootStep("compiling the celestial tables", 3);
-  await scene.whenReadyAsync();
-  await warmUp(ctx, bootStep);
+  // Bounded: if a single material never reports ready the game must still open,
+  // with the problem visible in the console, rather than hanging on a spinner.
+  await Promise.race([
+    scene.whenReadyAsync(),
+    // Eight seconds, not sixty: with every mesh material verified ready, what
+    // remains is Babylon's own post-process readiness bookkeeping, and the
+    // warm-up below is what actually forces those pipelines to compile.
+    new Promise((r) => setTimeout(() => {
+      console.warn("scene.whenReadyAsync timed out; continuing. Not ready:", notReady(scene));
+      r();
+    }, 8000)),
+  ]);
+  if (new URLSearchParams(location.search).get("warm") !== "0") await warmUp(ctx, bootStep);
 
   temple.freezeStatic();
 
@@ -211,6 +222,18 @@ async function main() {
 
   hud.banner("The Book of Stars", "an abandoned observatory, and one line of bronze", 7);
   hud.journal("Hold right mouse to look properly. E to touch what is in reach. B for the Book.", 12);
+}
+
+/** Which meshes are holding up readiness, and why. */
+function notReady(scene) {
+  const out = [];
+  for (const m of scene.meshes) {
+    if (!m.isEnabled() || !m.subMeshes || !m.subMeshes.length) continue;
+    const mat = m.material;
+    if (!mat) continue;
+    if (!mat.isReady(m, false)) out.push(m.name + " <- " + mat.name + " (" + mat.getClassName() + ")");
+  }
+  return out.length ? out : "(nothing — readiness was blocked elsewhere)";
 }
 
 main().catch((e) => {

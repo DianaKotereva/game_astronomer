@@ -8,9 +8,10 @@
  * stripe lies exactly along the bronze line — not because it was animated to,
  * but because that is where the light goes.
  *
- * The volume is a thin parallelepiped rebuilt each frame from eight vertices;
- * the shader softens its edges, thickens it with dust, and fades it with
- * distance so it reads as air rather than as a solid.
+ * The volume is drawn as camera-facing slices through the shaft rather than as
+ * a box: with additive blending a box's side faces read as separate bright
+ * slabs and vanish edge-on. The shader softens the edges, thickens the column
+ * with drifting dust, and fades it as the camera enters, so it reads as air.
  */
 import {
   Mesh, VertexData, ShaderMaterial, ShaderStore, ShaderLanguage, Constants,
@@ -96,12 +97,17 @@ export class ApertureBeam {
     ShaderStore.ShadersStoreWGSL["templeShaftVertexShader"] = SHAFT_VS;
     ShaderStore.ShadersStoreWGSL["templeShaftFragmentShader"] = SHAFT_FS;
 
-    // Twelve quads: four sides of the column plus the floor pool, doubled so it
-    // reads from both sides.
-    this.pos = new Float32Array(4 * 6 * 3);
-    this.uv = new Float32Array(4 * 6 * 2);
+    // Three quads. Two of them lie *through* the beam and are rolled about its
+    // axis to face the camera; the third is the pool on the floor.
+    //
+    // A box would be wrong: with additive blending its four side faces read as
+    // separate bright slabs, doubling where they overlap and vanishing edge-on.
+    // A camera-aligned slice through the volume is the standard light-shaft
+    // construction and reads as air from every angle.
+    this.pos = new Float32Array(4 * 3 * 3);
+    this.uv = new Float32Array(4 * 3 * 2);
     const idx = [];
-    for (let q = 0; q < 6; q++) {
+    for (let q = 0; q < 3; q++) {
       const b = q * 4;
       idx.push(b, b + 1, b + 2, b, b + 2, b + 3);
     }
@@ -178,54 +184,71 @@ export class ApertureBeam {
     this.offsetX = dx;
     this.landingZ = this.z0 + dz;
 
-    // Aperture rectangle corners, and the same rectangle projected to the floor.
+    const cam = this.scene.activeCamera;
     const hw = this.halfWidth;
-    const aX0 = this.x - hw, aX1 = this.x + hw;
-    const aZ0 = this.z0, aZ1 = this.z1;
-    const P = _pts;
-    // top face (at the aperture)
-    P[0] = aX0; P[1] = this.y; P[2] = aZ0;
-    P[3] = aX1; P[4] = this.y; P[5] = aZ0;
-    P[6] = aX1; P[7] = this.y; P[8] = aZ1;
-    P[9] = aX0; P[10] = this.y; P[11] = aZ1;
-    // bottom face (on the floor)
-    for (let i = 0; i < 4; i++) {
-      P[12 + i * 3] = P[i * 3] + dx;
-      P[12 + i * 3 + 1] = this.floorY + 0.012;
-      P[12 + i * 3 + 2] = P[i * 3 + 2] + dz;
-    }
 
-    // Build the six quads: four column walls and the two caps.
+    // The beam's own axis (the direction light travels) and a "width" axis
+    // perpendicular to it, rolled to face the camera.
+    let bx = lx, by = ly, bz = lz;
+    const bl = Math.hypot(bx, by, bz) || 1;
+    bx /= bl; by /= bl; bz /= bl;
+
+    // Toward the camera, from a point in the middle of the shaft.
+    const midX = this.x + dx * 0.5, midY = (this.y + this.floorY) * 0.5, midZ = (this.z0 + this.z1) * 0.5 + dz * 0.5;
+    let tx = (cam ? cam.globalPosition.x : 0) - midX;
+    let ty = (cam ? cam.globalPosition.y : 0) - midY;
+    let tz = (cam ? cam.globalPosition.z : 0) - midZ;
+    // Width axis = beam x toCamera, so the quad's normal faces the viewer.
+    let wx = by * tz - bz * ty, wy = bz * tx - bx * tz, wz = bx * ty - by * tx;
+    let wl = Math.hypot(wx, wy, wz);
+    if (wl < 1e-5) { wx = 1; wy = 0; wz = 0; wl = 1; }
+    wx /= wl; wy /= wl; wz /= wl;
+
+    // The slit is long, so the shaft is a *sheet*: its cross-section is the
+    // slit's width in x and its full run in z. The camera-facing quad spans
+    // whichever of those the viewer can actually see.
+    const halfLen = (this.z1 - this.z0) * 0.5;
+    const P = _pts;
     const q = this.pos, u = this.uv;
     let w = 0, uu = 0;
-    const put = (i, ax, ay) => {
-      q[w++] = P[i * 3]; q[w++] = P[i * 3 + 1]; q[w++] = P[i * 3 + 2];
+    const put = (px, py, pz, ax, ay) => {
+      q[w++] = px; q[w++] = py; q[w++] = pz;
       u[uu++] = ax; u[uu++] = ay;
     };
-    // west wall (0-3 top, 4-7 bottom)
-    put(0, -1, 0); put(3, -1, 0); put(7, -1, 1); put(4, -1, 1);
-    // east wall
-    put(1, 1, 0); put(5, 1, 1); put(6, 1, 1); put(2, 1, 0);
-    // south end
-    put(0, 0, 0); put(4, 0, 1); put(5, 0, 1); put(1, 0, 0);
-    // north end
-    put(3, 0, 0); put(2, 0, 0); put(6, 0, 1); put(7, 0, 1);
-    // the floor pool, drawn twice so it survives being seen edge-on
-    put(4, 0, 1); put(7, 0, 1); put(6, 0, 1); put(5, 0, 1);
-    put(4, 0, 0.985); put(5, 0, 0.985); put(6, 0, 0.985); put(7, 0, 0.985);
+
+    // Quad 1: across the slit's narrow dimension, billboarded.
+    const topX = this.x, topZ = (this.z0 + this.z1) * 0.5;
+    const botX = topX + dx, botZ = topZ + dz;
+    put(topX - wx * hw, this.y - wy * hw, topZ - wz * hw, -1, 0);
+    put(topX + wx * hw, this.y + wy * hw, topZ + wz * hw, 1, 0);
+    put(botX + wx * hw, this.floorY + 0.02 + wy * hw, botZ + wz * hw, 1, 1);
+    put(botX - wx * hw, this.floorY + 0.02 - wy * hw, botZ - wz * hw, -1, 1);
+
+    // Quad 2: along the slit's length, so the sheet reads from the side too.
+    put(topX, this.y, topZ - halfLen, -1, 0);
+    put(topX, this.y, topZ + halfLen, 1, 0);
+    put(botX, this.floorY + 0.02, botZ + halfLen, 1, 1);
+    put(botX, this.floorY + 0.02, botZ - halfLen, -1, 1);
+
+    // Quad 3: the pool where it lands.
+    const pz0 = Math.max(this.z0 + dz, this.z0), pz1 = Math.min(this.z1 + dz, this.z1);
+    put(botX - hw * 1.6, this.floorY + 0.015, pz0, -1, 1);
+    put(botX + hw * 1.6, this.floorY + 0.015, pz0, 1, 1);
+    put(botX + hw * 1.6, this.floorY + 0.015, pz1, 1, 1);
+    put(botX - hw * 1.6, this.floorY + 0.015, pz1, -1, 1);
+    void P;
 
     this.mesh.updateVerticesData("position", this.pos, false, false);
     this.mesh.updateVerticesData("uv", this.uv, false, false);
 
-    const cam = this.scene.activeCamera;
     this.mat.setVector4("tint", this._tint);
     this._params.set(this.intensity * 0.30 * tune.volumetricStrength, this._t, tune.dustDensity, 2.4);
     this.mat.setVector4("params", this._params);
     if (cam) this.mat.setVector3("camPos", cam.globalPosition);
 
     // Light the pool. Placed at the middle of the lit stripe.
-    const midZ = clamp((Math.max(this.z0 + dz, this.z0) + Math.min(this.z1 + dz, this.z1)) * 0.5, this.z0, this.z1);
-    this.light.position.set(this.x + dx, this.floorY + 0.6, midZ);
+    const poolZ = clamp((Math.max(this.z0 + dz, this.z0) + Math.min(this.z1 + dz, this.z1)) * 0.5, this.z0, this.z1);
+    this.light.position.set(this.x + dx, this.floorY + 0.6, poolZ);
     this.light.intensity = this.intensity * 2.6 * tune.volumetricStrength;
     this.light.diffuse.set(this._tint.x, this._tint.y, this._tint.z);
   }

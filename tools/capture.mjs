@@ -13,7 +13,7 @@
  * required to make zero runtime CDN requests, and this is the regression guard.
  */
 import { chromium } from "playwright";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
@@ -52,7 +52,21 @@ const PORT = parseInt(arg("port", String(5200 + Math.floor(Math.random() * 300))
 
 async function startServer() {
   if (url) return;
-  server = spawn("npx", ["vite", "--port", String(PORT), "--host", "127.0.0.1", "--strictPort"], {
+  // Build first and serve the bundle. The dev server hot-reloads on any source
+  // edit, which silently restarted several long captures mid-boot; a built
+  // bundle cannot be disturbed, and loads faster besides. `--dev` opts back in.
+  const dev = flag("dev");
+  if (!dev) {
+    const built = spawnSync("npx", ["vite", "build", "--logLevel", "error"], { cwd: process.cwd(), encoding: "utf8" });
+    if (built.status !== 0) {
+      console.error("build failed:\n" + (built.stderr || built.stdout));
+      process.exit(1);
+    }
+  }
+  const args = dev
+    ? ["vite", "--port", String(PORT), "--host", "127.0.0.1", "--strictPort"]
+    : ["vite", "preview", "--port", String(PORT), "--host", "127.0.0.1", "--strictPort"];
+  server = spawn("npx", args, {
     cwd: process.cwd(), stdio: ["ignore", "pipe", "pipe"],
   });
   await new Promise((resolve, reject) => {
@@ -63,7 +77,7 @@ async function startServer() {
     });
     server.stderr.on("data", (d) => process.stderr.write("[vite] " + d.toString()));
   });
-  url = `http://127.0.0.1:${PORT}/`;
+  url = `http://127.0.0.1:${PORT}/${arg("query", "")}`;
 }
 
 async function run() {
@@ -142,6 +156,7 @@ async function run() {
       textures: rt.scene.textures.length,
       lights: rt.scene.lights.length,
       status: window.__status || null,
+      boot: window.__boot || null,
     };
   }).catch(() => null);
 

@@ -15,12 +15,26 @@ const el = {
 let total = 1;
 let done = 0;
 let started = 0;
+/** Timings for each phase, exposed for the capture harness and for support. */
+const marks = [];
+let lastMark = 0;
 
 export function bootInit() {
   el.root = document.getElementById("boot");
   el.bar = document.getElementById("bootbar");
   el.phase = document.getElementById("bootphase");
   started = performance.now();
+  lastMark = started;
+  window.__boot = { marks, phase: "init" };
+}
+
+/** Record how long the previous phase took. A boot that stalls should be able
+ *  to say where, rather than sitting on a spinner. */
+function mark(label) {
+  const now = performance.now();
+  if (marks.length || label) marks.push({ label, ms: Math.round(now - lastMark) });
+  lastMark = now;
+  if (window.__boot) window.__boot.phase = label;
 }
 
 /** Declare the total weight of the load so the bar is honest. */
@@ -28,6 +42,7 @@ export function bootPlan(weight) { total = Math.max(1, weight); done = 0; }
 
 /** @param {string} label diegetic phase name @param {number} weight */
 export function bootStep(label, weight = 1) {
+  mark(label);
   if (el.phase && label) el.phase.textContent = label;
   done += weight;
   const f = Math.min(1, done / total);
@@ -37,11 +52,14 @@ export function bootStep(label, weight = 1) {
 }
 
 export function bootPhase(label) {
+  mark(label);
   if (el.phase && label) el.phase.textContent = label;
   return new Promise((r) => requestAnimationFrame(() => r()));
 }
 
 export async function bootFinish(minMs = 900) {
+  mark("done");
+  if (window.__boot) window.__boot.total = Math.round(performance.now() - started);
   const elapsed = performance.now() - started;
   if (elapsed < minMs) await new Promise((r) => setTimeout(r, minMs - elapsed));
   if (el.bar) el.bar.style.width = "100%";

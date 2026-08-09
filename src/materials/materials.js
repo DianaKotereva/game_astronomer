@@ -112,7 +112,9 @@ export class MaterialLib {
     return this.fromMaps(key, maps, {
       envIntensity: opts.envIntensity,
       detailScale: opts.detailScale === undefined ? 11 : opts.detailScale,
-      detailBump: 0.9,
+      detailBump: 0.34,
+      detailAlbedo: 0.07,
+      detailRough: 0.14,
       parallax: opts.parallax,
       tint: opts.tint,
     });
@@ -160,14 +162,16 @@ export class MaterialLib {
     if (hit) return hit;
     const maps = cloth(this.scene, opts.size || 512, opts.seed || 131, opts);
     const m = this.fromMaps(key, maps, {
-      envIntensity: 0.5, detail: false, doubleSided: true,
+      envIntensity: 0.32, detail: false, doubleSided: true,
     });
     m.unfreeze();
-    // Cloth needs a sheen response or it reads as painted rubber.
+    // Cloth needs *some* sheen or it reads as painted rubber — but only a
+    // little. The lobe peaks at grazing angles, which is everywhere at once on
+    // a draped cone, and at full strength it washes a black coat to bone white.
     m.sheen.isEnabled = true;
-    m.sheen.intensity = opts.sheen === undefined ? 0.55 : opts.sheen;
-    m.sheen.color = new Color3(0.62, 0.66, 0.78);
-    m.sheen.roughness = 0.5;
+    m.sheen.intensity = opts.sheen === undefined ? 0.16 : opts.sheen;
+    m.sheen.color = new Color3(0.34, 0.36, 0.44);
+    m.sheen.roughness = 0.75;
     m.freeze();
     return m;
   }

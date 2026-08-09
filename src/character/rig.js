@@ -81,7 +81,16 @@ function capsuleData(len, r0, r1, seg = 12, rings = 5, squashX = 1, squashZ = 1)
 class PartAccum {
   constructor() { this.pos = []; this.nrm = []; this.uv = []; this.idx = []; }
 
-  add(data, m) {
+  /**
+   * @param {{pos:number[],nrm:number[],uv:number[],idx:number[]}} data
+   * @param {import("../core/bjs.js").Matrix} mat transform to bake in
+   */
+  add(data, mat) {
+    // Babylon's Matrix keeps its floats in `.m`; indexing the object itself
+    // yields undefined, and undefined arithmetic silently produces NaN for
+    // every vertex — geometry that exists, reports its vertex count, and draws
+    // nothing at all.
+    const m = mat.m || mat;
     const base = this.pos.length / 3;
     const p = data.pos, n = data.nrm;
     for (let i = 0; i < p.length; i += 3) {
@@ -206,10 +215,10 @@ export class Rig {
     const scene = this.scene, mats = this.mats;
 
     const matCoat = mats.cloth({
-      key: "_coat", seed: 131, color: [0.052, 0.058, 0.082], threads: 150, sheen: 0.5,
+      key: "_coat", seed: 131, color: [0.028, 0.032, 0.048], threads: 150, sheen: 0.45, wear: 0.5,
     });
     const matUnder = mats.cloth({
-      key: "_under", seed: 211, color: [0.085, 0.075, 0.062], threads: 190, sheen: 0.28, wear: 1.3,
+      key: "_under", seed: 211, color: [0.052, 0.046, 0.038], threads: 190, sheen: 0.25, wear: 0.8,
     });
     const matLeather = mats.wood({ key: "_leather", seed: 353 });
     const matSkin = mats.cloth({
@@ -243,9 +252,10 @@ export class Rig {
     }, matSkin, "headMesh");
 
     this.meshHood = attach(this.head, (a) => {
-      // A cowl: wider than the head, open at the front, trailing at the back.
-      a.add(capsuleData(0.10, 0.118, 0.128, 16, 6, 1.02, 1.12), capsuleMatrix(0, 0.0, -0.012, -0.03, 1, -0.22, _m));
-      a.add(capsuleData(0.16, 0.115, 0.055, 12, 4, 1.0, 1.0), capsuleMatrix(0, 0.03, -0.10, 0, -0.35, -1, _m));
+      // A cowl pushed back off the face: it sits on the crown and falls behind,
+      // so the head still reads as a head from any angle.
+      a.add(capsuleData(0.055, 0.098, 0.104, 16, 6, 1.02, 1.10), capsuleMatrix(0, 0.028, -0.020, -0.06, 1, -0.30, _m));
+      a.add(capsuleData(0.13, 0.088, 0.042, 12, 4, 1.0, 1.0), capsuleMatrix(0, 0.02, -0.085, 0, -0.55, -1, _m));
     }, matCoat, "hoodMesh");
 
     // Arms

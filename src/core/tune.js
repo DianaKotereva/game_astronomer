@@ -26,7 +26,7 @@ export const tune = {
   airglow: 0.6,
 
   // --- exposure / grade --------------------------------------------------
-  exposure: 1.55,
+  exposure: 1.72,
   contrast: 1.06,
   saturation: 0.94,
   coolShadowTint: 0.5,

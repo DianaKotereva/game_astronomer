@@ -54,7 +54,7 @@ submitted geometry for no visible change.
 
 | System | Budget | Notes |
 |---|---|---|
-| Base geometry | 1.6 ms | 4 merged frozen meshes; `freezeActiveMeshes` on |
+| Base geometry | 1.6 ms | 4 merged meshes, world matrices and materials frozen |
 | Shadows | 2.4 ms | 4 CSM cascades @2048 + one 1024 spot |
 | Stone/bronze shading | 2.2 ms | PBR + detail map; parallax reserved for hero surfaces |
 | Character + cloth | 0.9 ms | ~220 cloth particles, CPU Verlet, 2 substeps |
@@ -62,6 +62,16 @@ submitted geometry for no visible change.
 | Volumetrics + dust | 0.8 ms | one beam volume, one pooled mote draw |
 | Star magic | 0.6 ms | two pooled draws (threads, motes) + ≤4 lights |
 | Post | 2.1 ms | TAA, SSAO2, atmosphere, bloom, grade, grain, sharpen |
+
+## What is frozen, and what is not
+
+`Temple.freezeStatic()` freezes the world matrix and material of every static
+architecture mesh. `scene.freezeActiveMeshes()` is deliberately **not** used:
+the cloth panels, the thread and mote buffers, the aperture beam and the Book
+all rebuild their vertex data, and freezing the active-mesh list would strand
+them. The win from freezing the list is small once the static geometry is four
+merged meshes; the win from freezing matrices and materials is the large one,
+and that is kept.
 
 ## Allocation behaviour
 

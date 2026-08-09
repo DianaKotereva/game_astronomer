@@ -19,9 +19,12 @@ const SEC_PER_DAY = 86400;
 
 export class GameTime {
   constructor() {
-    // A clear autumn night. Late enough that Cygnus is high in the west and
-    // Orion is rising — both of which the temple has opinions about.
-    this.jd = toJD(2027, 10, 14, 21, 40, 0);
+    // A clear autumn night, forty-five minutes before the full moon crosses the
+    // meridian — verified against the model, which puts the crossing at 20:54
+    // UTC (local midnight, as a full moon must) at an altitude of 65°30′.
+    // The player arrives with the light stripe five metres west of the bronze
+    // line and the means to close that gap in their hands.
+    this.jd = toJD(2027, 10, 14, 20, 9, 0);
     this.startJD = this.jd;
 
     /** Game seconds per real second during ordinary play. */

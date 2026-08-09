@@ -51,14 +51,14 @@ export class Player {
   }
 
   _buildCloth(scene, mats) {
-    const matCoat = mats.cloth({ key: "_coatpanel", seed: 131, color: [0.048, 0.054, 0.078], threads: 130, sheen: 0.55 });
-    const matMantle = mats.cloth({ key: "_mantle", seed: 167, color: [0.075, 0.066, 0.058], threads: 105, sheen: 0.42, wear: 1.4 });
-    const matScarf = mats.cloth({ key: "_scarf", seed: 199, color: [0.115, 0.088, 0.062], threads: 220, sheen: 0.30, wear: 1.6 });
+    const matCoat = mats.cloth({ key: "_coatpanel", seed: 131, color: [0.026, 0.030, 0.046], threads: 130, sheen: 0.14, wear: 0.45 });
+    const matMantle = mats.cloth({ key: "_mantle", seed: 167, color: [0.040, 0.035, 0.030], threads: 105, sheen: 0.12, wear: 0.7 });
+    const matScarf = mats.cloth({ key: "_scarf", seed: 199, color: [0.072, 0.055, 0.038], threads: 220, sheen: 0.10, wear: 0.9 });
 
     // The coat skirt: a tube pinned around the waist, flaring to the calf.
     this.coat = new ClothPanel(scene, {
-      name: "coatSkirt", cols: 16, rows: 8, width: 0.42, length: 0.78,
-      flare: 0.42, wrap: true, stiffness: 0.85, damping: 0.035, iterations: 6, windScale: 1,
+      name: "coatSkirt", cols: 16, rows: 8, width: 0.34, length: 0.80,
+      flare: 0.30, wrap: true, stiffness: 0.85, damping: 0.035, iterations: 6, windScale: 1,
     });
     this.coat.mesh.material = matCoat;
     this.coat.initialise((c, out) => {
@@ -70,21 +70,21 @@ export class Player {
 
     // The mantle: a short shoulder cape, open at the front.
     this.mantle = new ClothPanel(scene, {
-      name: "mantle", cols: 14, rows: 5, width: 0.5, length: 0.34,
-      flare: 0.5, wrap: false, stiffness: 0.92, damping: 0.05, iterations: 6, windScale: 0.85,
+      name: "mantle", cols: 13, rows: 4, width: 0.42, length: 0.27,
+      flare: 0.14, wrap: false, stiffness: 0.95, damping: 0.06, iterations: 6, windScale: 0.8,
     });
     this.mantle.mesh.material = matMantle;
     this.mantle.initialise((c, out) => {
-      const t = c / 13;
-      const a = -Math.PI * 0.80 + t * Math.PI * 1.60;
-      out[0] = Math.sin(a) * 0.20;
-      out[1] = RIG.shoulderY + 0.045;
-      out[2] = -Math.cos(a) * 0.155;
+      const t = c / 12;
+      const a = -Math.PI * 0.72 + t * Math.PI * 1.44;
+      out[0] = Math.sin(a) * 0.165;
+      out[1] = RIG.shoulderY + 0.005;
+      out[2] = -Math.cos(a) * 0.125;
     });
 
     // The scarf: a narrow strip over one shoulder, the most mobile layer.
     this.scarf = new ClothPanel(scene, {
-      name: "scarf", cols: 4, rows: 11, width: 0.10, length: 0.62,
+      name: "scarf", cols: 4, rows: 9, width: 0.09, length: 0.44,
       flare: 0.15, wrap: false, stiffness: 0.7, damping: 0.02, iterations: 5, windScale: 1.5,
     });
     this.scarf.mesh.material = matScarf;
@@ -180,12 +180,12 @@ export class Player {
       const lx = Math.cos(a) * 0.175, lz = Math.sin(a) * 0.128;
       this.coat.setPin(c, hip.x + lx * cf + lz * sf, hip.y + 0.055, hip.z - lx * sf + lz * cf);
     }
-    // mantle: an arc across the shoulders
+    // mantle: an arc across the shoulders, open at the front
     for (let c = 0; c < this.mantle.cols; c++) {
       const t = c / (this.mantle.cols - 1);
-      const a = -Math.PI * 0.80 + t * Math.PI * 1.60;
-      const lx = Math.sin(a) * 0.205, lz = -Math.cos(a) * 0.16;
-      this.mantle.setPin(c, chest.x + lx * cf + lz * sf, chest.y + 0.135, chest.z - lx * sf + lz * cf);
+      const a = -Math.PI * 0.72 + t * Math.PI * 1.44;
+      const lx = Math.sin(a) * 0.168, lz = -Math.cos(a) * 0.128;
+      this.mantle.setPin(c, chest.x + lx * cf + lz * sf, chest.y + 0.105, chest.z - lx * sf + lz * cf);
     }
     // scarf: over the left shoulder
     for (let c = 0; c < this.scarf.cols; c++) {

@@ -261,11 +261,14 @@ export function equatorialToGalactic(raDeg, decDeg, out = _gal) {
  * @param {number} count
  * @returns {Star[]}
  */
-export function generateFaintStars(count = 5200, seed = 90210) {
+export function generateFaintStars(count = 6400, seed = 90210) {
   const rng = makeRng(seed);
   /** @type {Star[]} */
   const out = new Array(count);
-  const minMag = 4.2, maxMag = 6.6;
+  // Starts at 3.3, not 4.2: the named catalogue thins out above magnitude 3
+  // and leaving the gap unfilled put a visible hole in the counts exactly where
+  // the eye notices it — the sky looked sparse just below the bright stars.
+  const minMag = 3.3, maxMag = 6.6;
   for (let i = 0; i < count; i++) {
     // Magnitude from the count law: N(<m) ∝ 10^(0.42 m). Inverting gives a
     // strong bias toward the faint end, exactly as the real sky has.
@@ -274,11 +277,11 @@ export function generateFaintStars(count = 5200, seed = 90210) {
 
     let ra = 0, dec = 0;
     // Two thirds of the faint field is drawn toward the galactic plane.
-    if (rng() < 0.66) {
+    if (rng() < 0.55) {
       const l = rng() * 360;
       // Latitude concentrated near b = 0 — a Laplace-ish profile.
       const s = rng() < 0.5 ? -1 : 1;
-      const b = s * (-Math.log(Math.max(1e-4, rng())) * 7.5);
+      const b = s * (-Math.log(Math.max(1e-4, rng())) * 10.5);
       const eq = galacticToEquatorial(l, Math.max(-88, Math.min(88, b)));
       ra = eq.ra; dec = eq.dec;
     } else {

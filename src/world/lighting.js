@@ -54,10 +54,10 @@ export class Lighting {
     // --- lantern ---------------------------------------------------------
     // A spot rather than a point: cube shadows for a point light cost six
     // renders, and the player only ever sees the lantern's forward hemisphere.
-    this.lantern = new SpotLight("lantern", new Vector3(0, 1.2, 0), new Vector3(0, -0.35, 1), 2.5, 2.2, scene);
+    this.lantern = new SpotLight("lantern", new Vector3(0, 1.2, 0), new Vector3(0, -0.35, 1), 2.9, 1.7, scene);
     this.lantern.diffuse = new Color3(1.0, 0.66, 0.34);
     this.lantern.specular = new Color3(1.0, 0.74, 0.45);
-    this.lantern.intensity = tune.lanternIntensity * 26;
+    this.lantern.intensity = tune.lanternIntensity * 14;
     this.lantern.range = tune.lanternRange;
     this.lantern.shadowMinZ = 0.35;
     this.lantern.shadowMaxZ = tune.lanternRange;
@@ -65,8 +65,8 @@ export class Lighting {
     // player's own coat are lit from the correct place.
     this.lanternCore = new PointLight("lanternCore", new Vector3(0, 1.2, 0), scene);
     this.lanternCore.diffuse = new Color3(1.0, 0.62, 0.30);
-    this.lanternCore.intensity = tune.lanternIntensity * 3.2;
-    this.lanternCore.range = 4.2;
+    this.lanternCore.intensity = tune.lanternIntensity * 2.1;
+    this.lanternCore.range = 3.4;
 
     /** @type {CascadedShadowGenerator|null} */
     this.csm = null;
@@ -114,6 +114,15 @@ export class Lighting {
   addCaster(mesh, includeChildren = false) {
     if (this.csm) this.csm.addShadowCaster(mesh, includeChildren);
     if (this.lanternShadow) this.lanternShadow.addShadowCaster(mesh, includeChildren);
+  }
+
+  /**
+   * Keep the little in-housing light from cooking whatever it is nearest.
+   * The coat hangs 30 cm from the flame; at that range an unshielded point
+   * light washes the cloth to white however dark its albedo is.
+   */
+  excludeFromCore(meshes) {
+    for (const m of meshes) if (m) this.lanternCore.excludedMeshes.push(m);
   }
 
   /** Move the lantern rig. Called by the character each frame. */
@@ -170,8 +179,8 @@ export class Lighting {
     this.moon.intensity = tune.moonIntensity * illumFactor * lerp(1, 0.82, this._interior)
       * (0.05 + 0.95 * Math.pow(moonUp, 0.42));
     this.scene.environmentIntensity = tune.skyIntensity * lerp(1, 0.62, this._interior);
-    this.lantern.intensity = tune.lanternIntensity * 26;
-    this.lanternCore.intensity = tune.lanternIntensity * 3.2;
+    this.lantern.intensity = tune.lanternIntensity * 14;
+    this.lanternCore.intensity = tune.lanternIntensity * 2.1;
     this.lantern.range = tune.lanternRange;
     this.lanternCore.range = tune.lanternRange * 0.34;
 
