@@ -205,7 +205,7 @@ export class Magic {
     _ray.length = maxDist;
     const pick = this.scene.pickWithRay(_ray, (m) => m.isPickable && m.isVisible !== false, false);
     if (pick && pick.hit) { out.copyFrom(pick.pickedPoint); return pick; }
-    out.copyFrom(eye).addInPlace(_v.scale(maxDist));
+    out.set(eye.x + _v.x * maxDist, eye.y + _v.y * maxDist, eye.z + _v.z * maxDist);
     return null;
   }
 
@@ -526,8 +526,9 @@ export class Magic {
       if (d > 20) continue;
       const s = fade * r.strength * clamp01(1 - d / 20);
       if (r.kind === "sightline" && r.dir) {
+        const L = r.length || 12;
         _v.copyFrom(r.position);
-        _v2.copyFrom(r.position).addInPlace(r.dir.scale(r.length || 12));
+        _v2.set(r.position.x + r.dir.x * L, r.position.y + r.dir.y * L, r.position.z + r.dir.z * L);
         this.threads.setColor(0.82, 0.78, 0.62);
         this.threads.add(_v.x, _v.y, _v.z, _v2.x, _v2.y, _v2.z, s * 0.75, 0.44);
       } else if (r.kind === "figure" && r.points) {

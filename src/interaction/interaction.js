@@ -182,7 +182,7 @@ export class Interaction {
 
     // Project the point and the point-plus-tangent, and compare with the mouse.
     const ok1 = this._project(_p, _s1);
-    _q.copyFrom(_p).addInPlace(_t.scale(0.15));
+    _q.set(_p.x + _t.x * 0.15, _p.y + _t.y * 0.15, _p.z + _t.z * 0.15);
     const ok2 = this._project(_q, _s2);
     if (ok1 && ok2) {
       let tx = _s2.x - _s1.x, ty = _s2.y - _s1.y;

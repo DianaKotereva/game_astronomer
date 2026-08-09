@@ -80,10 +80,18 @@ Verified by construction:
 - Object pools: magic lights (4), HUD annotations (24), dust motes (520), thread
   segments (320), stellar motes (900).
 
-Two deliberate exceptions, both outside the loop: the Book re-renders its page
-canvases when a spread changes (a discrete event, and the reason the Book is
-warmed at load), and the environment probe is rebaked when the moon has moved
-enough to matter (throttled to at most once per 250 ms, 32² × 6 faces).
+Three exceptions, all bounded and all understood:
+
+1. `scene.pickWithRay` allocates a small `PickingInfo` per call — Babylon's API
+   offers no reusable-result form. The game makes at most four picks per frame
+   (camera arm, foot ground probe, interaction reach, spell aim), so this is a
+   few dozen bytes per frame of short-lived garbage in the nursery. It is the
+   one allocation the loop cannot avoid without forking the engine, and it is
+   small enough not to drive a collection during play.
+2. The Book re-renders its page canvases when a spread changes — a discrete
+   event, and the reason the Book is warmed at load.
+3. The environment probe is rebaked when the moon has moved enough to matter,
+   throttled to at most once per 250 ms (32² × 6 faces).
 
 ## Pipeline warm-up
 

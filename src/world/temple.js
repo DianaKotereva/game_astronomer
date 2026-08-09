@@ -10,7 +10,9 @@
 import { Accum } from "./geo.js";
 import { MaterialLib } from "../materials/materials.js";
 import { buildHallOfMeridian } from "./chambers/hallOfMeridian.js";
+import { buildWanderingStars } from "./chambers/wanderingStars.js";
 import { HallOfMeridianPuzzle } from "../puzzles/hallOfMeridian.js";
+import { WanderingStarsPuzzle } from "../puzzles/wanderingStars.js";
 import { Color3 } from "../core/bjs.js";
 
 export class Temple {
@@ -56,6 +58,9 @@ export class Temple {
     await this.report("raising the Hall of Meridian", 3);
     this.hall = buildHallOfMeridian(bctx);
 
+    await this.report("opening the second court", 3);
+    this.court = buildWanderingStars(bctx);
+
     // Puzzles contribute their own geometry into the same accumulators, so the
     // instruments are cut from the same stone as the room around them.
     await this.report("setting the instruments", 3);
@@ -67,6 +72,11 @@ export class Temple {
       this.dynamicCasters.push(
         meridian.circle.fixedMesh, meridian.circle.armMesh,
         meridian.drumMesh, meridian.shutterMesh, meridian.weightMesh);
+
+      const orrery = new WanderingStarsPuzzle(ctx);
+      orrery.build(bctx);
+      this.puzzles.push(orrery);
+      for (const m of orrery.meshes) this.dynamicCasters.push(m);
     }
 
     await this.report("dressing the stone", 4);

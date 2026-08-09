@@ -111,6 +111,9 @@ export class Book {
     this._turn = 0;
     this._turnDir = 0;
 
+    this._handL = new Vector3();
+    this._handR = new Vector3();
+
     this._buildMesh();
     this.rebuild();
   }
@@ -602,10 +605,14 @@ export class Book {
     if (this.ctx.player) {
       const ctrl = this.ctx.player.controller;
       if (this.blend > 0.25) {
-        _v1.copyFrom(this.root.position); _v1.x -= right.x * 0.16; _v1.y -= right.y * 0.16; _v1.z -= right.z * 0.16;
-        ctrl.reachLeft(_v1.clone());
-        _v2.copyFrom(this.root.position); _v2.x += right.x * 0.16; _v2.y += right.y * 0.16; _v2.z += right.z * 0.16;
-        ctrl.reachRight(_v2.clone());
+        // Persistent targets: the controller keeps the reference, so these must
+        // not be freshly allocated every frame.
+        this._handL.set(this.root.position.x - right.x * 0.16,
+          this.root.position.y - right.y * 0.16, this.root.position.z - right.z * 0.16);
+        this._handR.set(this.root.position.x + right.x * 0.16,
+          this.root.position.y + right.y * 0.16, this.root.position.z + right.z * 0.16);
+        ctrl.reachLeft(this._handL);
+        ctrl.reachRight(this._handR);
       } else {
         ctrl.reachLeft(null);
         ctrl.reachRight(null);
