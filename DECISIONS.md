@@ -64,6 +64,41 @@ Deviations from the brief, and why. One line each, per §88.
   celestial focus in the character's hand; there is no hotbar and no on-screen
   name. The arrangements are distinct enough to read from behind.
 
+## Deviations found while building the later chambers
+
+- **The Court of Reflections does not use Constellation Thread.** It was
+  designed with one broken pivot that Thread would bridge. Dropped: the beam is
+  genuinely ray-traced, so a wrong mount already shows *where* the light goes
+  and therefore which way to turn, and a second mechanic would have blurred a
+  room whose whole lesson is "measure the sky first". Thread's major use is the
+  Final Observatory instead, where it closes the Nail's figure around the axis.
+
+- **A wrong mirror does not stop the beam.** The design said the light halts at
+  the first bad mount. It travels on instead, visibly wrong. Stopping hides the
+  error; continuing shows its direction and magnitude, which is better failure
+  feedback for no extra cost.
+
+- **The court's receiver aperture is sized from the optics, not by eye.**
+  Reflection doubles an angular error, so a mount off by the 0.6° seating
+  tolerance throws the ray 1.2° — 0.16 m over the last leg — while 1.5° throws
+  it 0.39 m. The bowl mouth is 0.22 m so the first arrives and the second does
+  not. `tools/courtcheck.mjs` asserts both directions.
+
+- **The Final Observatory's instrument has no adjustment at all.** Every other
+  mechanism in the temple moves. This one cannot, because the puzzle is that the
+  century is wrong rather than the aim, and any adjustment would let the player
+  "solve" it by aiming and learn nothing.
+
+- **Interior-ness is positional, not a constant.** It was set once at boot, which
+  stopped being true the moment the slice opened on an exterior and gained a
+  roofless court. It is now a damped blend driven by the player's position.
+
+- **The round court had no south door.** Its wall openings were derived by an
+  expression that opened the north segment only, so the passage up from the Hall
+  arrived at solid masonry and the second chamber was unreachable on foot. The
+  four ways out are now named explicitly and the perimeter collider carries the
+  same gaps. Recorded here because no screenshot would ever have caught it.
+
 ## Environment-specific
 
 - **`tools/gpuShim.js` exists only for headless capture.** The container's

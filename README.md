@@ -84,23 +84,43 @@ measurement caveats, and the full design of every puzzle.
 
 ## Status
 
-**Built and running.** Two chambers stand: the Hall of Meridian, complete end to
-end (the shaft of moonlight, the floor scale, the drum of hours, the meridian
-circle, Celestial Resonance, and the temple's answer opening the way north), and
-the Chamber of Wandering Stars with its five-ring orrery. The celestial model,
-the sky, the protagonist, the Book of Stars, Observation Mode, the shared magic
-framework and all five spells plus Zenith are implemented, as are the mechanism
-physics, dust, procedural audio, save and the pipeline warm-up.
+**Built and running.** Six spaces stand, and the slice runs end to end:
 
-**Designed, not yet built:** the Court of Reflections, the Archive of the Sky and
-the Final Observatory. Their full designs — evidence, deduction, manipulation,
-verification, failure feedback and brute-force protection — are written up in
-`PUZZLES.md`, and the fragments, figures and spells they hand out already exist
-in the Book's knowledge graph, which is validated as reachable end to end.
+- **The Approach** — night, bare rock, a thirty-step flight to a facade whose
+  only opening is the meridian slit seen from outside. The player starts here.
+- **The Hall of Meridian** — the shaft of moonlight, the floor scale, the drum
+  of hours, the meridian circle, and the temple's answer opening the way north.
+- **The Chamber of Wandering Stars** — the five-ring orrery over its well.
+- **The Archive of the Sky** — the reading hall, the dispute in two hands, and
+  the leaf that explains why every alignment in the temple is wrong.
+- **The Court of Reflections** — the Gate inlaid full size in the floor, four
+  mirrors standing on its stars, and light that walks the figure.
+- **The Final Observatory** — the fixed axis, the epoch wheel, the awakening,
+  and Zenith.
 
-**Verified numerically** (`tools/rigcheck.mjs`, and the audits in this session):
-the moon's meridian crossing lands where the hall's scale says it should, the
-altitude read-back round-trips exactly, every constellation figure resolves to a
-real catalogued star, all five spells are reachable through Book fragments, and
-precession puts Thuban 0.09° from the pole 4 800 years ago — which is what the
-whole revelation rests on.
+The celestial model, the sky, the protagonist, the Book of Stars, Observation
+Mode, the shared magic framework and all five spells plus Zenith are
+implemented, as are the mechanism physics, dust, procedural audio, save and the
+pipeline warm-up.
+
+The Deep Instrument is the undercroft below the round court's well and the
+machinery visible through its gratings, rather than a separate room — see
+`DECISIONS.md`.
+
+**Verified numerically**, not by eye:
+
+- the moon's meridian crossing lands where the hall's scale says it should, and
+  the altitude read-back round-trips exactly;
+- every constellation figure resolves to a real catalogued star;
+- all five spells are reachable through Book fragments, with no orphans;
+- precession puts Thuban 0.040° from the pole 4 786 years before J2000, where
+  Polaris is 26.4° away — which is what the whole revelation rests on;
+- the Court of Reflections' optics (`node tools/courtcheck.mjs`): the intended
+  solution lands, settings inside tolerance still land, errors of 1.5° or more
+  miss, and 200 000 random configurations land 0.008% of the time;
+- the observatory's polar slit is a fully enclosed cut that clears the gallery
+  and the column heads, and its target epoch is inside the wheel's travel.
+
+**Not measured:** frame rate. See the note at the top of `PERF.md` — the
+development container has no GPU, and inventing numbers would be worse than
+leaving the column blank.

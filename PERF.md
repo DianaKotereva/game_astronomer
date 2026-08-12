@@ -45,19 +45,39 @@ standing in the Hall of Meridian with everything enabled.
 | | |
 |---|---|
 | Static architecture meshes | 4 (one per material) |
-| Static architecture triangles | 123 400 |
-| Static architecture vertices | 269 100 |
+| Static architecture triangles | 684 200 |
+| Static architecture vertices | 1 368 300 |
 | Dynamic meshes (character, cloth, instruments, book, VFX) | ~34 |
 | Materials | 20 |
 | Textures | 61 |
 | Lights | 4 fixed + up to 4 pooled magic lights |
 | Shadow-casting lights | 2 (moon CSM ×4 cascades, lantern spot) |
 
-Triangles submitted per frame including shadow passes is roughly 5× the static
-count, because the CSM renders the casters once per cascade. That is the single
-largest lever available if the target is missed: dropping to three cascades, or
-excluding the smallest props from the two distant cascades, removes ~25% of
-submitted geometry for no visible change.
+Per-room, measured at build time:
+
+| Space | Vertices |
+|---|---|
+| The Approach | 137 300 |
+| Hall of Meridian | 279 000 |
+| Chamber of Wandering Stars | 254 900 |
+| Archive of the Sky | 165 800 |
+| Court of Reflections | 150 900 |
+| Final Observatory | 380 400 |
+
+**This grew by 5× when the remaining four spaces were built, and it is the number
+most likely to cost the frame target.** It is still four draw calls — everything
+static is merged per material and frozen — so the base pass is cheap. The shadow
+pass is not: the CSM renders the casters once per cascade, so roughly 3.4 M
+triangles are submitted per frame at four cascades. On the reference GPU that
+should fit, but it is untested (see the measurement note above) and it is the
+first thing to look at if the target is missed.
+
+Two trims were already taken where they cost nothing visible: the observatory's
+engraved floor circles are tessellated at 1.3 m rather than 0.5 m per piece (a
+40 mm bronze line reads identically and this alone was 42 000 vertices), and the
+Approach is built at 0.9 m courses with rock as large low blocks, because it is
+all silhouette at night. No trim was taken anywhere the player stands close to
+the stone.
 
 ## Frame budget plan (11.1 ms)
 

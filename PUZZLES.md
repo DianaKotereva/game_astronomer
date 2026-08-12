@@ -134,102 +134,169 @@ five angles that exist in the sky overhead and nowhere else.
 
 ## 3. The Court of Reflections
 
-*Design; mirror optics are the second build phase.*
+*Built. Optics validated by `tools/courtcheck.mjs`.*
 
 ### Purpose
 Astronomy as the dominant language. The player must measure the sky before
 touching any metal.
 
 ### Initial observation
-An open courtyard under the stars, with bronze mirrors on pivots, an elevated
-aperture, and a stone bed marked with a figure that is *not* one of the modern
-constellations.
+An open courtyard under the whole sky — the first space in the temple with no
+roof at all. A polished black field fourteen metres across carries a figure
+inlaid in bronze at 0.24 metres to the degree: four stars, four edges, and a
+mirror mount standing on each of the four stars. West, high in the wall, a
+dressed aperture. East, a bronze bowl on a black plinth.
 
 ### Evidence
 - The Book fragment *On the court of mirrors*: the mirrors hold an **angle**,
-  not a beam — each pair is set to the angular separation of two stars of a
-  figure.
+  not a beam — each mount is set to the angular separation of two stars of the
+  figure, "so that light entering along one edge leaves along the next".
 - Observation Mode measures angular separation between a marked star (`F`) and
   the star under the sight.
-- The figure on the bed is a *temple* figure, so the player must first recognise
-  which modern stars it is drawn over (§35).
+- The figure is **the Gate**, a *temple* figure, so it is legible only to a
+  player who has recovered the temple's own constellation set in the Archive
+  (§35, §83). Its four stars are Vega, Deneb, Albireo and Altair; all four are
+  above the horizon at the hour the slice takes place.
+- Each mount carries a cut **datum** mark. The dial reads degrees from the
+  datum, so the number to enter is the raw separation and nothing derived.
 
 ### Required deduction
-Identify the figure from invariant stars, measure the separations of its edges,
-set each mirror pair to that separation.
+Recognise the Gate from its invariant stars, measure the separation of each
+edge, and set the mount standing on a star to the separation of the edge
+*leaving* that star. The four values are 23.85°, 22.29°, 19.67° and 34.20°.
 
 ### Physical manipulation
-Each mirror is a draggable axis with an engraved angular scale.
+Four draggable rotary axes, each graduated every degree with every fifth long.
+Seating tolerance is 0.6°.
 
 ### Magical operation
-**Stellar Light** to supply the beam (starlight is too thin to see unaided —
-this is the room that makes the first Book fragment about gathered light pay
-off), and **Constellation Thread** to bridge the one mirror whose pivot is
-broken.
+**Stellar Light** into the collector — the court's whole optical path is fed by
+gathered starlight, which is what makes the first *gathered light* fragment pay
+off — then **Celestial Resonance** to complete. Solving awards *Of the third
+ring*, the collimation refinement the Final Observatory later depends on.
 
 ### Verification
-Light completes the circuit and the figure on the floor ignites, edge by edge, in
-the order the mirrors pass it along.
+The beam is genuinely ray-traced through the mirrors as they actually stand. It
+walks the figure mount by mount, each seated mount showing a thin ring of light
+around its dial, and terminates in the bowl.
 
 ### Failure feedback
-The beam stops at the first wrong mirror and scatters. The court stays dark past
-that point, which tells the player exactly which pair is wrong.
+A wrong mirror does not fail a check — it sends the light somewhere else, and
+the player can see exactly where it goes and therefore which way to turn. Past
+the first badly-set mount the path leaves the court entirely.
 
 ### Brute-force protection
-Angles are continuous and the tolerance is tight; there is no way to read the
-correct angle other than from the sky.
+Four continuous axes. Measured over 200 000 random configurations, 0.008% land
+in the bowl. The closest two dial values differ by 1.56°, more than twice the
+seating tolerance, so a mistaken pairing of edge to mount does not pass.
 
 ---
 
 ## 4. The Archive of the Sky
 
-*Design; exploration space rather than a mechanism.*
+*Built. Evidence, not machinery.*
 
 ### Purpose
 Establish that the temple's astronomers were people, and deliver the revelation
 that the sky itself has moved (§36).
 
-### Contents
-Broken tablets, observation journals in six hands, unfinished calculations, a
-diagram corrected three times in three different inks, a failed magical
-experiment still faintly resonant, and the dispute: one astronomer measuring the
-pole star's drift and blaming the measurement, another — later, smaller, angrier
-— writing *"it has not moved. WE have moved."*
+### Initial observation
+A barrel-vaulted reading hall, deliberately low where the rest of the temple is
+monumental. Nine shelf bays with the scroll cases still in them, six lecterns
+worn hollow where forearms rested, a north wall of arithmetic struck through and
+redone, and an armillary somebody stopped halfway through dismantling. The only
+sky is a clerestory above the arcade, too high to read by.
 
-### Deduction
-Precession. The temple was cut for a sky that has since slid out from under it,
-and its pole star was Thuban, not Polaris. This reframes every alignment the
-player has already made.
+### Evidence
+Two tablets on a stand in the west niche, set side by side by someone who wanted
+them compared — and both cut a finger deep, so the lantern lies flat across them
+and shows nothing.
+
+### Required deduction
+The temple has already said it, in the Hall of Meridian: shallow cutting is
+"meant to be read by a light held to one side, not by a lamp set before it". The
+lantern hangs at the reader's own hand and lights along the line of sight.
+Stellar Light arrives from wherever the star actually is, and rakes.
+
+### Physical manipulation
+None, by design. This is the room with no mechanism in it.
 
 ### Magical operation
-**Astral Recall** (taught here) shows fragments of the arguments that happened in
-this room — never the whole, never the reason.
+**Stellar Light** held on the stand recovers the dispute. **Astral Recall**
+shows a scholar carrying a leaf from the stand to the shelves on the last night
+the room was used — a route, not a label. Stellar Light on that bay recovers
+*The slow turning*.
+
+### Verification
+The raking light finds the cutting and the text resolves; the leaf enters the
+Book and the temple's own figures become legible.
+
+### Failure feedback
+Under the lantern the tablets stay blank, though moving the light shows that
+they do carry relief — which is the hint. A wrong bay is simply a bay of cases
+and dust.
+
+### Brute-force protection
+Nine bays, and lighting each one is slow. Recall names the route; without it the
+search is tedious rather than impossible, which is the intended pressure — the
+room is not trying to lock the player out, it is trying to make them look.
 
 ---
 
 ## 5. The Final Observatory
 
-*Design; the climax.*
+*Built. Sight line and epoch range validated at build time.*
 
 ### Purpose
-Combine all three languages, and require at least three discoveries made
-elsewhere (§75).
+The convergence (§75). Three things learned in three other rooms have to arrive
+together, and this room supplies none of them.
 
-### Required, all at once
-1. The historical sky — the epoch must be set back to the builders' era, using
-   what the Archive taught (astronomy).
-2. The dome's rings must be aligned to a target that only exists in *that* sky
-   (mechanism).
-3. The figure's missing edge must be restored with **Constellation Thread**,
-   because the anchor stone it once ran to is broken (magic).
-4. **Celestial Resonance** to bring the dome up.
-5. **Zenith**, which is only available once the last Book fragment is recovered.
+### Initial observation
+A drum thirty-two metres across under a shuttered dome. Eight mirrors on their
+bearings in eight niches. A great polar axis on the central platform with two
+graduated meridian rings — and **no adjustment of any kind**. Cut through the
+north wall, 13.4 metres up, a slit a hand wide. Everything in the room points at
+the same empty piece of sky.
+
+### Evidence
+- The axis is cut at the altitude of the celestial pole, and the pole never
+  moves — so the instrument is not what is wrong.
+- *The slow turning*, from the Archive: every alignment here was cut for a sky
+  that has since moved out from under it.
+- The epoch wheel: four metres of bronze graduated in ages, not hours.
+
+### Required deduction
+Do not aim anything. Wind the sky back until the builders' pole star returns to
+the pole. Thuban reaches it 4 786 years before J2000, 0.040° off — closer than
+Polaris has ever come to ours, and 25.6° from where Thuban stands tonight.
+
+### Physical manipulation
+The epoch wheel, the heaviest axis in the game (inertia 220, stiction 6.0). The
+target is 1.84 turns, inside its 3.2-turn travel. Winding away again loses the
+alignment.
+
+### Magical operation
+**Stellar Light** into the instrument head — which requires *Of the third ring*
+from the Court, or the light will not collimate and the tube does nothing.
+**Constellation Thread** to close the Nail's figure around the axis. **Celestial
+Resonance** to wake it. Then **Zenith**, once, which only becomes possible after
+the last leaf is recovered.
 
 ### Verification
-The temple answers across every room the player has been in: shutters open,
-mirrors turn, the orrery runs, engraved scales light with points of cold light.
-A map appears across the floor — not of the temple, and not of the known
-constellations.
+The temple answers: shutters come off their seats, eight mirrors turn in
+sequence, dust comes off every bearing that has not moved in three centuries.
+No text says "solved".
+
+### Failure feedback
+Before the alignment, Stellar Light goes into the tube and out of the slit into
+empty sky, and the room says so. Sighting the axis at the wrong epoch shows
+empty vanes. The wheel reports the Nail's current distance from the true point,
+so the player always knows whether they are getting warmer.
+
+### Brute-force protection
+The wheel travels 8 320 years and the window is 0.6° wide — roughly 130 years of
+winding out of 8 320, and there is no reason to stop there without knowing what
+you are looking for. Nothing else in the room responds at all until it is right.
 
 ### The answer, and the larger question
 The player learns *what the astronomers saw*: something that keeps no orbit and
