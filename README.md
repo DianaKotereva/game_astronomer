@@ -112,7 +112,11 @@ machinery visible through its gratings, rather than a separate room — see
 - the moon's meridian crossing lands where the hall's scale says it should, and
   the altitude read-back round-trips exactly;
 - every constellation figure resolves to a real catalogued star;
-- all five spells are reachable through Book fragments, with no orphans;
+- the knowledge graph (`node tools/knowledgecheck.mjs`): all eleven fragments
+  are awarded, none twice, every ability is reachable, and no room depends on
+  knowledge or on a constellation figure it cannot have yet — the Court needs
+  the Gate from the Archive, and the Observatory needs precession from the
+  Archive and collimation from the Court;
 - precession puts Thuban 0.040° from the pole 4 786 years before J2000, where
   Polaris is 26.4° away — which is what the whole revelation rests on;
 - the Court of Reflections' optics (`node tools/courtcheck.mjs`): the intended
