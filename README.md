@@ -22,8 +22,14 @@ compatibility plate and stops — by design.
 ```
 npm run build        # production bundle
 npm run preview      # serve the bundle
-node tools/check.mjs # fast module-load check
-node tools/capture.mjs <name> --w 2560 --h 1440   # headless screenshot
+node tools/check.mjs          # fast module-load check (all modules import)
+node tools/navcheck.mjs       # is every room reachable on foot?
+node tools/knowledgecheck.mjs # is every fragment awarded, in a workable order?
+node tools/courtcheck.mjs     # does the Court of Reflections actually solve?
+node tools/rigcheck.mjs       # character geometry, without a renderer
+
+node tools/capture.mjs <name> --w 2560 --h 1440              # one screenshot
+node tools/capture.mjs gallery --script tools/shots.mjs      # the ten-shot gallery
 ```
 
 ## Controls

@@ -160,7 +160,13 @@ export function traceBeam(plan, angleOf, out = []) {
 
   let px = plan.collector.x, pz = plan.collector.z;
   const first = plan.starPos.get(TOUR[0]);
-  let [dx, dz] = normalise(first.x - px, first.z - pz);
+  // Normalised inline rather than through the helper: this runs every frame and
+  // the helper returns a fresh pair (§53 — nothing allocates in the loop).
+  let dx = first.x - px, dz = first.z - pz;
+  {
+    const l = Math.hypot(dx, dz) || 1;
+    dx /= l; dz /= l;
+  }
 
   let reached = 0;
   for (let i = 0; i < TOUR.length; i++) {
@@ -196,8 +202,15 @@ export function traceBeam(plan, angleOf, out = []) {
   if (onReceiver) out.push(plan.receiver.x, plan.receiver.z);
   else out.push(px + dx * 26, pz + dz * 26);
 
-  return { path: out, reached, onReceiver };
+  // Written into a shared result rather than returned fresh: this is called
+  // every frame and a per-frame object literal is a per-frame allocation.
+  _traceResult.path = out;
+  _traceResult.reached = reached;
+  _traceResult.onReceiver = onReceiver;
+  return _traceResult;
 }
+
+const _traceResult = { path: null, reached: 0, onReceiver: false };
 
 export class CourtOfReflectionsPuzzle {
   /** @param {Object} ctx */
@@ -421,10 +434,13 @@ export class CourtOfReflectionsPuzzle {
    */
   _trace() {
     if (!this.path) this.path = [];
+    // The callback is bound once, not rebuilt per frame: a closure allocated
+    // every update is exactly the kind of steady nursery pressure §53 is about.
+    if (!this._angleOf) this._angleOf = (name) => this._angleByName(name);
     // The mirrors are read through their *visual* angle, so the beam moves with
     // the metal rather than with the idealised mechanism state — backlash and
     // settling oscillation are visible in the light, which is the point.
-    const r = traceBeam(this.plan, (name) => this._angleByName(name), this.path);
+    const r = traceBeam(this.plan, this._angleOf, this.path);
     this.onReceiver = r.onReceiver;
     return r.reached;
   }
