@@ -5,9 +5,15 @@
  *   node tools/capture.mjs <name> [--w 2560] [--h 1440] [--wait 8000]
  *                          [--eval "js executed in page before capture"]
  *                          [--shots n] [--gap ms] [--url ...] [--keep]
+ *                          [--script tools/shots.mjs]
  *
  * Boots the Vite dev server (unless --url given), waits for the game to report
  * readiness through window.__ready, runs optional page script, then captures.
+ *
+ * `--script` names a module exporting a list of framings — `{name, js, settle}`
+ * — and optionally a `setup` string run once after boot. Booting this game on a
+ * software rasteriser costs many minutes; re-posing a live page costs seconds,
+ * so a gallery is one boot and N framings, never N runs.
  *
  * It also fails loudly on any network request leaving localhost — the game is
  * required to make zero runtime CDN requests, and this is the regression guard.
@@ -43,6 +49,7 @@ const SHOTS = parseInt(arg("shots", "1"), 10);
 const GAP = parseInt(arg("gap", "400"), 10);
 const EVAL = arg("eval", "");
 const OUTDIR = arg("out", "shots");
+const SCRIPT = arg("script", "");
 
 let server = null;
 let url = arg("url", "");
@@ -80,7 +87,21 @@ async function startServer() {
   url = `http://127.0.0.1:${PORT}/${arg("query", "")}`;
 }
 
+/** Framings to capture: either a --script gallery, or --shots of one framing. */
+async function loadPlan() {
+  if (!SCRIPT) {
+    const frames = [];
+    for (let i = 0; i < SHOTS; i++) frames.push({ name: SHOTS > 1 ? `${name}_${i}` : name });
+    return { frames, setup: "" };
+  }
+  const mod = await import(new URL("file://" + path.resolve(SCRIPT)));
+  return { frames: mod.default, setup: mod.setup || "" };
+}
+
+let plan = { frames: [{ name }], setup: "" };
+
 async function run() {
+  plan = await loadPlan();
   await startServer();
   if (!existsSync(OUTDIR)) mkdirSync(OUTDIR, { recursive: true });
 
@@ -119,26 +140,32 @@ async function run() {
   if (EVAL) {
     try { await page.evaluate(EVAL); } catch (e) { problems.push("EVAL: " + e.message); }
   }
-
-  // Let the renderer settle (TAA accumulation, warm-up, cloth relaxing).
-  await page.waitForTimeout(GAP);
+  if (plan.setup) {
+    try { await page.evaluate(plan.setup); } catch (e) { problems.push("SETUP: " + e.message); }
+  }
 
   const shots = [];
-  for (let i = 0; i < SHOTS; i++) {
-    const file = path.join(OUTDIR, SHOTS > 1 ? `${name}_${i}.png` : `${name}.png`);
-    // Halt the render loop first. On the software rasteriser a single frame can
-    // take seconds, and the compositor cannot deliver a screenshot while the GPU
-    // is saturated — stopping the loop makes the capture immediate.
+  for (let i = 0; i < plan.frames.length; i++) {
+    const f = plan.frames[i];
+    const file = path.join(OUTDIR, f.name + ".png");
+    // Pose first, then run the loop: damped rigs, TAA and cloth all need frames
+    // to converge, and a pose applied to a stopped renderer would photograph the
+    // instant of the change rather than its result.
+    if (f.js) {
+      try { await page.evaluate(f.js); } catch (e) { problems.push("FRAME " + f.name + ": " + e.message); }
+    }
+    await page.evaluate(() => { if (window.__rt) window.__rt.start(); }).catch(() => {});
+    await page.waitForTimeout(f.settle === undefined ? GAP : f.settle);
+    // Halt the render loop before grabbing. On the software rasteriser a single
+    // frame can take seconds, and the compositor cannot deliver a screenshot
+    // while the GPU is saturated — stopping the loop makes the capture immediate.
     await page.evaluate(() => { if (window.__rt) window.__rt.stop(); }).catch(() => {});
     // Pull the virtual swapchain into the visible canvas (see tools/gpuShim.js).
     const grab = await page.evaluate(() => (window.__grab ? window.__grab() : "no-shim")).catch((e) => "grab-fail: " + e.message);
     if (typeof grab === "string") problems.push("GRAB: " + grab);
     await page.screenshot({ path: file, timeout: 120000, animations: "disabled" });
     shots.push(file);
-    if (i < SHOTS - 1) {
-      await page.evaluate(() => { if (window.__rt) window.__rt.start(); }).catch(() => {});
-      await page.waitForTimeout(GAP);
-    }
+    console.log(`[${i + 1}/${plan.frames.length}] ${file}`);
   }
 
   const stats = await page.evaluate(() => {
