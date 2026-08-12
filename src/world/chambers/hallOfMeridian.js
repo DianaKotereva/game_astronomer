@@ -308,7 +308,11 @@ export function buildHallOfMeridian(ctx) {
   }
   addBlock(collider, 0, 5.6, H.z1 + 4, 2.4, 0.4, 4, { bevel: 0 });
   for (const s of [-1, 1]) {
-    addBlock(collider, s * 5.9, 9, H.z0 - 0.9, 6.2, 12, 1.2, { bevel: 0 });
+    // The south wall, either side of the portal. These were centred at ±5.9
+    // with a half-width of 6.2, so they met at x = ±0.3 and sealed the doorway
+    // the masonry leaves open — invisible while the player was spawned inside
+    // the hall, fatal now that they walk in from the Approach.
+    addBlock(collider, s * 6.0, 9, H.z0 - 0.9, 3.4, 12, 1.2, { bevel: 0 });
   }
   addCylinder(collider, 0, 0, basinZ, { radius: 2.1, height: 0.7, segments: 16, capTop: false });
 

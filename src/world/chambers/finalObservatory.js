@@ -283,7 +283,9 @@ export function buildFinalObservatory(ctx) {
     addBlock(collider, O.cx + Math.cos(a) * rm, -0.35, O.cz + Math.sin(a) * rm,
       (O.radius - O.platformR) * 0.5, 0.3, (TAU * rm) / cn * 0.6, { yaw: -a, bevel: 0 });
     const dDoor = Math.abs(((a - doorAz + Math.PI * 3) % TAU) - Math.PI);
-    if (dDoor > 0.16) {
+    // Widened past the masonry opening by half a collider segment's angular
+    // width, so the neighbouring boxes do not overhang the doorway.
+    if (dDoor > 0.30) {
       addBlock(collider, O.cx + Math.cos(a) * (O.radius + 0.9), 7, O.cz + Math.sin(a) * (O.radius + 0.9),
         1.6, 9, (TAU * O.radius) / cn * 0.6, { yaw: -a, bevel: 0 });
     }

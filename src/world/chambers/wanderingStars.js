@@ -43,11 +43,18 @@ const DOORS = [
   { az: Math.PI * 0.5, half: 0.17 },   // north — onward, to the Observatory
 ];
 
-/** Is this azimuth inside one of the doorways? */
-function isDoorAngle(am) {
+/**
+ * Is this azimuth inside one of the doorways?
+ *
+ * `margin` widens the test for the collision hull. A collider segment is a box
+ * with real angular width, so skipping only the one segment centred on a door
+ * leaves its neighbours overhanging the gap — which is how the north doorway
+ * ended up visibly open and 1.4 m of it impassable.
+ */
+function isDoorAngle(am, margin = 0) {
   for (let i = 0; i < DOORS.length; i++) {
     const d = ((am - DOORS[i].az + Math.PI * 3) % TAU) - Math.PI;
-    if (Math.abs(d) < DOORS[i].half) return true;
+    if (Math.abs(d) < DOORS[i].half + margin) return true;
   }
   return false;
 }
@@ -227,7 +234,8 @@ export function buildWanderingStars(ctx) {
       (C.radius - C.wellRadius) * 0.5, 0.3, (TAU * rm) / cn * 0.6, { yaw: -a, bevel: 0 });
     // The perimeter collider must carry the same four gaps as the masonry, or
     // the doorways are visible and impassable.
-    if (!isDoorAngle(a)) {
+    // 0.17 rad of margin: half the angular width of one collider segment.
+    if (!isDoorAngle(a, 0.17)) {
       addBlock(collider, C.cx + Math.cos(a) * (C.radius + 0.7), 6, C.cz + Math.sin(a) * (C.radius + 0.7),
         1.4, 8, (TAU * C.radius) / cn * 0.6, { yaw: -a, bevel: 0 });
     }

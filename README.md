@@ -123,7 +123,10 @@ machinery visible through its gratings, rather than a separate room — see
   solution lands, settings inside tolerance still land, errors of 1.5° or more
   miss, and 200 000 random configurations land 0.008% of the time;
 - the observatory's polar slit is a fully enclosed cut that clears the gallery
-  and the column heads, and its target epoch is inside the wheel's travel.
+  and the column heads, and its target epoch is inside the wheel's travel;
+- every connection on the route is walkable (`node tools/navcheck.mjs`), which
+  is not a formality — it caught two sealed doorways that no screenshot could
+  have shown.
 
 **Not measured:** frame rate. See the note at the top of `PERF.md` — the
 development container has no GPU, and inventing numbers would be worse than
