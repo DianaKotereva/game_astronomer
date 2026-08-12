@@ -174,6 +174,7 @@ async function main() {
       // Damped, so walking through the portal is a transition and not a switch.
       interior = damp(interior, want, 0.0012, dt);
       applyInterior(interior);
+      tune.exposureBlend = interior;
     },
   });
 

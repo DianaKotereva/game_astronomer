@@ -27,6 +27,13 @@ export const tune = {
 
   // --- exposure / grade --------------------------------------------------
   exposure: 1.72,
+  // The interior figure above was calibrated when every space was enclosed.
+  // Open sky is a far brighter environment and the same exposure blows the
+  // stone out to white, so the exterior gets its own and the interior system
+  // blends between them.
+  exposureExterior: 1.02,
+  /** 0 = fully outside, 1 = fully enclosed. Written by the interior system. */
+  exposureBlend: 1,
   contrast: 1.06,
   saturation: 0.94,
   coolShadowTint: 0.5,
@@ -88,7 +95,8 @@ export const TUNE_DEFS = [
   { key: "extinctionStrength", label: "extinction", min: 0, max: 2, step: 0.01, group: "Sky" },
   { key: "airglow", label: "airglow", min: 0, max: 2, step: 0.01, group: "Sky" },
 
-  { key: "exposure", label: "exposure", min: 0.2, max: 3, step: 0.01, group: "Grade" },
+  { key: "exposure", label: "exposure (interior)", min: 0.2, max: 3, step: 0.01, group: "Grade" },
+  { key: "exposureExterior", label: "exposure (exterior)", min: 0.2, max: 3, step: 0.01, group: "Grade" },
   { key: "contrast", label: "contrast", min: 0.6, max: 1.8, step: 0.01, group: "Grade" },
   { key: "saturation", label: "saturation", min: 0, max: 1.6, step: 0.01, group: "Grade" },
   { key: "bloom", label: "bloom", min: 0, max: 1.5, step: 0.01, group: "Grade" },

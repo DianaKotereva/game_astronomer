@@ -30,7 +30,10 @@ export class PostStack {
     const ip = scene.imageProcessingConfiguration;
     ip.toneMappingEnabled = true;
     ip.toneMappingType = ImageProcessingConfiguration.TONEMAPPING_ACES;
-    ip.exposure = tune.exposure;
+    // Exterior and interior are two different lighting environments; one
+    // exposure cannot serve both.
+    ip.exposure = tune.exposureExterior
+      + (tune.exposure - tune.exposureExterior) * tune.exposureBlend;
     ip.contrast = tune.contrast;
     ip.vignetteEnabled = true;
     ip.vignetteWeight = tune.vignette * 3.2;
@@ -145,7 +148,10 @@ export class PostStack {
   update(dt) {
     const p = this.pipeline;
     const ip = this.scene.imageProcessingConfiguration;
-    ip.exposure = tune.exposure;
+    // Exterior and interior are two different lighting environments; one
+    // exposure cannot serve both.
+    ip.exposure = tune.exposureExterior
+      + (tune.exposure - tune.exposureExterior) * tune.exposureBlend;
     ip.contrast = tune.contrast;
     ip.vignetteWeight = tune.vignette * 3.2;
     ip.colorCurves.globalSaturation = tune.saturation * 100 - 100;

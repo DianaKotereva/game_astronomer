@@ -63,14 +63,43 @@ export function buildApproach(ctx) {
 
   // Outcrops east and west: they close the composition and stop the player
   // walking off into nothing.
+  //
+  // Built as clusters rather than single masses. One big block per outcrop is
+  // cheaper but reads as exactly what it is — a grey box on the skyline — and a
+  // box-like silhouette is a defect (§78). Each outcrop is a leaning core with
+  // four to seven shoulders around it at falling heights and unrelated yaws, so
+  // the top edge breaks up and nothing presents a flat face to the camera.
   for (const side of [-1, 1]) {
-    for (let i = 0; i < 26; i++) {
-      const t = i / 25;
-      const x = side * (26 + t * 16 + rng() * 7);
-      const z = A.plainZ0 + t * (A.terraceZ1 - A.plainZ0);
-      const h = 5 + rng() * 13 + t * 5;
-      addBlock(stone, x, A.plainY + h * 0.4, z, 4 + rng() * 5, h * 0.5, 4 + rng() * 6,
-        { yaw: rng() * TAU, bevel: 0.25, uvScale: 0.14 });
+    for (let i = 0; i < 22; i++) {
+      const t = i / 21;
+      const bx = side * (26 + t * 16 + rng() * 7);
+      const bz = A.plainZ0 + t * (A.terraceZ1 - A.plainZ0);
+      const H = 5 + rng() * 13 + t * 5;
+      const core = 2.6 + rng() * 2.4;
+
+      // The core, tilted off vertical by settling one pair of top corners.
+      const tilt = (rng() - 0.5) * 0.9;
+      addBlock(stone, bx, A.plainY + H * 0.42, bz, core, H * 0.5, core * (0.75 + rng() * 0.5), {
+        yaw: rng() * TAU, bevel: 0.3, uvScale: 0.14,
+        settle: [tilt, tilt * 0.4, -tilt * 0.5, -tilt],
+      });
+
+      // Shoulders, each shorter than the last and pushed out from the core.
+      const n = 4 + Math.floor(rng() * 4);
+      for (let s = 0; s < n; s++) {
+        const a = (s / n) * TAU + rng() * 1.1;
+        const d = core * (0.7 + rng() * 0.9);
+        const sh = H * (0.28 + rng() * 0.44);
+        addBlock(stone, bx + Math.cos(a) * d, A.plainY + sh * 0.42, bz + Math.sin(a) * d,
+          1.5 + rng() * 2.4, sh * 0.5, 1.5 + rng() * 2.6, {
+            yaw: rng() * TAU, bevel: 0.26, uvScale: 0.14,
+            settle: [(rng() - 0.5) * 0.7, (rng() - 0.5) * 0.7, (rng() - 0.5) * 0.7, (rng() - 0.5) * 0.7],
+          });
+      }
+      // Scree at the foot, so the rock meets the ground in debris, not an edge.
+      if (i % 2 === 0) {
+        addRubble(stone, { x: bx, z: bz, y: A.plainY, radius: core * 2.2, count: 14, rng, minSize: 0.3, maxSize: 1.5, bias: 0.8 });
+      }
     }
   }
 
