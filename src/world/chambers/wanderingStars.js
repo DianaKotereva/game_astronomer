@@ -27,6 +27,31 @@ export const COURT = {
   domeTop: 18.5,
 };
 
+/**
+ * The four ways out of the round court, as azimuths in the room's own angular
+ * convention: 0 = +X east, π/2 = +Z north, π = −X west, 3π/2 = −Z south.
+ *
+ * These were previously derived by an expression that opened the north segment
+ * and only the north segment, which left the passage up from the Hall of
+ * Meridian arriving at a solid wall — the second chamber could be flown into
+ * but not walked into. Naming the doors is worth the four lines.
+ */
+const DOORS = [
+  { az: Math.PI * 1.5, half: 0.17 },   // south — up from the Hall of Meridian
+  { az: Math.PI, half: 0.15 },         // west  — the Archive of the Sky
+  { az: 0, half: 0.15 },               // east  — the Court of Reflections
+  { az: Math.PI * 0.5, half: 0.17 },   // north — onward, to the Observatory
+];
+
+/** Is this azimuth inside one of the doorways? */
+function isDoorAngle(am) {
+  for (let i = 0; i < DOORS.length; i++) {
+    const d = ((am - DOORS[i].az + Math.PI * 3) % TAU) - Math.PI;
+    if (Math.abs(d) < DOORS[i].half) return true;
+  }
+  return false;
+}
+
 export function buildWanderingStars(ctx) {
   const rng = makeRng(90210);
   const { stone, dark, bronze, plaster, collider } = ctx;
@@ -94,10 +119,8 @@ export function buildWanderingStars(ctx) {
     const a0 = (i / segs) * TAU, a1 = ((i + 1) / segs) * TAU;
     const x0 = C.cx + Math.cos(a0) * C.radius, z0 = C.cz + Math.sin(a0) * C.radius;
     const x1 = C.cx + Math.cos(a1) * C.radius, z1 = C.cz + Math.sin(a1) * C.radius;
-    // Leave the south segment open where the passage from the Hall enters.
     const am = (a0 + a1) * 0.5;
-    const south = Math.abs(((am - Math.PI * 1.5 + Math.PI * 3) % TAU) - Math.PI);
-    const isDoor = south > Math.PI - 0.16;
+    const isDoor = isDoorAngle(am);
     addWall(stone, {
       from: [x0, z0], to: [x1, z1], base: -0.5, height: C.wallTop + 0.5,
       thickness: 1.5, course: 0.64, blockLen: 1.4, rng, ruin: 0.10,
@@ -202,8 +225,12 @@ export function buildWanderingStars(ctx) {
     const rm = (C.wellRadius + C.radius) * 0.5;
     addBlock(collider, C.cx + Math.cos(a) * rm, -0.35, C.cz + Math.sin(a) * rm,
       (C.radius - C.wellRadius) * 0.5, 0.3, (TAU * rm) / cn * 0.6, { yaw: -a, bevel: 0 });
-    addBlock(collider, C.cx + Math.cos(a) * (C.radius + 0.7), 6, C.cz + Math.sin(a) * (C.radius + 0.7),
-      1.4, 8, (TAU * C.radius) / cn * 0.6, { yaw: -a, bevel: 0 });
+    // The perimeter collider must carry the same four gaps as the masonry, or
+    // the doorways are visible and impassable.
+    if (!isDoorAngle(a)) {
+      addBlock(collider, C.cx + Math.cos(a) * (C.radius + 0.7), 6, C.cz + Math.sin(a) * (C.radius + 0.7),
+        1.4, 8, (TAU * C.radius) / cn * 0.6, { yaw: -a, bevel: 0 });
+    }
   }
   // A rail around the well so the player cannot simply walk into it.
   for (let i = 0; i < cn; i++) {

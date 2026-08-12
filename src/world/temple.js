@@ -11,8 +11,10 @@ import { Accum } from "./geo.js";
 import { MaterialLib } from "../materials/materials.js";
 import { buildHallOfMeridian } from "./chambers/hallOfMeridian.js";
 import { buildWanderingStars } from "./chambers/wanderingStars.js";
+import { buildArchiveOfTheSky } from "./chambers/archiveOfTheSky.js";
 import { HallOfMeridianPuzzle } from "../puzzles/hallOfMeridian.js";
 import { WanderingStarsPuzzle } from "../puzzles/wanderingStars.js";
+import { ArchiveOfTheSkyPuzzle } from "../puzzles/archiveOfTheSky.js";
 import { Color3 } from "../core/bjs.js";
 
 export class Temple {
@@ -61,6 +63,9 @@ export class Temple {
     await this.report("opening the second court", 3);
     this.court = buildWanderingStars(bctx);
 
+    await this.report("unshelving the archive", 3);
+    this.archive = buildArchiveOfTheSky(bctx);
+
     // Puzzles contribute their own geometry into the same accumulators, so the
     // instruments are cut from the same stone as the room around them.
     await this.report("setting the instruments", 3);
@@ -77,6 +82,11 @@ export class Temple {
       orrery.build(bctx);
       this.puzzles.push(orrery);
       for (const m of orrery.meshes) this.dynamicCasters.push(m);
+
+      // The archive contributes only static geometry — no mechanism, by design.
+      const archive = new ArchiveOfTheSkyPuzzle(ctx);
+      archive.build(bctx);
+      this.puzzles.push(archive);
     }
 
     await this.report("dressing the stone", 4);
