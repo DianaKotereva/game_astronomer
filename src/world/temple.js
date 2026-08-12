@@ -13,10 +13,12 @@ import { buildHallOfMeridian } from "./chambers/hallOfMeridian.js";
 import { buildWanderingStars } from "./chambers/wanderingStars.js";
 import { buildArchiveOfTheSky } from "./chambers/archiveOfTheSky.js";
 import { buildCourtOfReflections } from "./chambers/courtOfReflections.js";
+import { buildFinalObservatory } from "./chambers/finalObservatory.js";
 import { HallOfMeridianPuzzle } from "../puzzles/hallOfMeridian.js";
 import { WanderingStarsPuzzle } from "../puzzles/wanderingStars.js";
 import { ArchiveOfTheSkyPuzzle } from "../puzzles/archiveOfTheSky.js";
 import { CourtOfReflectionsPuzzle } from "../puzzles/courtOfReflections.js";
+import { FinalObservatoryPuzzle } from "../puzzles/finalObservatory.js";
 import { Color3 } from "../core/bjs.js";
 
 export class Temple {
@@ -71,6 +73,9 @@ export class Temple {
     await this.report("opening the court of mirrors", 3);
     this.reflections = buildCourtOfReflections(bctx);
 
+    await this.report("raising the great dome", 4);
+    this.observatory = buildFinalObservatory(bctx);
+
     // Puzzles contribute their own geometry into the same accumulators, so the
     // instruments are cut from the same stone as the room around them.
     await this.report("setting the instruments", 3);
@@ -97,6 +102,11 @@ export class Temple {
       mirrors.build(bctx);
       this.puzzles.push(mirrors);
       for (const m of mirrors.meshes) this.dynamicCasters.push(m);
+
+      const observatory = new FinalObservatoryPuzzle(ctx);
+      observatory.build(bctx);
+      this.puzzles.push(observatory);
+      for (const m of observatory.meshes) this.dynamicCasters.push(m);
     }
 
     await this.report("dressing the stone", 4);
