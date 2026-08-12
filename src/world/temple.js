@@ -14,6 +14,7 @@ import { buildWanderingStars } from "./chambers/wanderingStars.js";
 import { buildArchiveOfTheSky } from "./chambers/archiveOfTheSky.js";
 import { buildCourtOfReflections } from "./chambers/courtOfReflections.js";
 import { buildFinalObservatory } from "./chambers/finalObservatory.js";
+import { buildApproach } from "./chambers/approach.js";
 import { HallOfMeridianPuzzle } from "../puzzles/hallOfMeridian.js";
 import { WanderingStarsPuzzle } from "../puzzles/wanderingStars.js";
 import { ArchiveOfTheSkyPuzzle } from "../puzzles/archiveOfTheSky.js";
@@ -60,6 +61,9 @@ export class Temple {
 
     const bctx = { scene, mats: this.mats, stone, dark, bronze, plaster, collider };
     this.accums = bctx;
+
+    await this.report("laying the approach", 3);
+    this.approach = buildApproach(bctx);
 
     await this.report("raising the Hall of Meridian", 3);
     this.hall = buildHallOfMeridian(bctx);

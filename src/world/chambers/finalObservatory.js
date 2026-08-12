@@ -78,7 +78,10 @@ export function buildFinalObservatory(ctx) {
   // scale, and it is what the map at the end will be drawn on.
   for (let d = 1; d <= 5; d++) {
     const rr = O.platformR + (d / 5) * (O.radius - O.platformR - 1.2);
-    const n = Math.max(48, Math.round(TAU * rr / 0.5));
+    // 1.3 m per piece. A bronze line 40 mm wide reads as a line at any
+    // tessellation finer than the eye can resolve the chord, and at 0.5 m this
+    // ring alone was costing more vertices than the entire Archive's shelving.
+    const n = Math.max(40, Math.round(TAU * rr / 1.3));
     for (let i = 0; i < n; i++) {
       const a = (i / n) * TAU;
       addBlock(bronze, O.cx + Math.cos(a) * rr, -0.036, O.cz + Math.sin(a) * rr,

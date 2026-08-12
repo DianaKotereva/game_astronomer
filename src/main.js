@@ -28,6 +28,10 @@ import { Save } from "./core/save.js";
 import { warmUp } from "./core/warmup.js";
 import * as celestial from "./astronomy/celestial.js";
 import { tune, toggles } from "./core/tune.js";
+import { damp } from "./core/scratch.js";
+import { APPROACH } from "./world/chambers/approach.js";
+import { HALL } from "./world/chambers/hallOfMeridian.js";
+import { REFLECT } from "./world/chambers/courtOfReflections.js";
 
 /** Quality profile. `?q=low` keeps every system on but cheapens the maps, which
  *  is what makes iterating on a software rasteriser bearable. */
@@ -95,7 +99,9 @@ async function main() {
   const player = new Player(scene, temple.mats, cam, input, lighting);
   rt.add(player);
   ctx.player = player;
-  player.teleport(1.6, 0.05, -10.4, 0.06);
+  // The player begins outside, at the foot of the great stair, facing the
+  // temple (§11.1). Everything about the opening minute is the approach.
+  player.teleport(0, APPROACH.plainY + 0.05, APPROACH.plainZ1 - 5.5, 0);
 
   await bootStep("hanging the shadows", 3);
   lighting.initShadows(temple.shadowCasters, QUALITY.shadow, QUALITY.cascades, QUALITY.lanternShadow);
@@ -149,10 +155,27 @@ async function main() {
 
   /* --- atmosphere and post ---------------------------------------------- */
   await bootStep("letting in the night", 2);
-  lighting.setInterior(1);
-  player.setInterior(1);
-  dust.setInterior(1);
-  audio.setInterior(1);
+  // Interior-ness is a property of where the player is standing, not a constant
+  // set once at boot: the slice now opens on an exterior, and the Court of
+  // Reflections has no roof at all. Everything that cares about the difference
+  // between cold sky and enclosed stone reads the same blend.
+  let interior = 0;
+  const applyInterior = (v) => {
+    lighting.setInterior(v); player.setInterior(v); dust.setInterior(v); audio.setInterior(v);
+  };
+  applyInterior(0);
+  rt.add({
+    name: "interior", order: 95,
+    update(dt) {
+      const p = player.position;
+      let want = 1;
+      if (p.z < HALL.z0 + 1.5) want = 0;                                  // the approach
+      else if (Math.hypot(p.x - REFLECT.cx, p.z - REFLECT.cz) < REFLECT.half) want = 0.25;
+      // Damped, so walking through the portal is a transition and not a switch.
+      interior = damp(interior, want, 0.0012, dt);
+      applyInterior(interior);
+    },
+  });
 
   const post = new PostStack(scene, cam.camera);
   post.enableSSAO(QUALITY.ssao, QUALITY.ssaoSamples);
